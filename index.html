@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adnan Visuals - Gallery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: sans-serif; background-color: black; margin: 0; padding: 0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const { motion, AnimatePresence } = window.Motion;
+
+    // === GANTI DENGAN LINK /exec DARI GOOGLE APPS SCRIPT ANDA ===
+    const API_URL = "https://script.google.com/macros/s/AKfycbxUJcRsXFD8UELot6DdK6YmDJyKM3wlhsljoqnR0zmk_SPNbDm8t_EGMev8D5fS7IZz/exec"; 
+    // ============================================================
+
+    function Gallery3D({ images, slideDuration, imageScale }) {
+      const [currentIndex, setCurrentIndex] = useState(0);
+
+      useEffect(() => {
+        if (!images || images.length === 0) return;
+        const timer = setInterval(() => setCurrentIndex((prev) => (prev + 1) % images.length), slideDuration);
+        return () => clearInterval(timer);
+      }, [images, currentIndex, slideDuration]);
+
+      const handleDragEnd = (e, { offset }) => {
+        if (offset.x > 50) setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+        else if (offset.x < -50) setCurrentIndex((prev) => (prev + 1) % images.length);
+      };
+
+      if (!images || images.length === 0) return <div className="text-gray-600 text-sm italic">Tidak ada foto ditemukan</div>;
+
+      return (
+        <div className="relative w-full h-[60%] perspective-[1000px] flex items-center justify-center">
+          {images.map((img, index) => {
+            const diff = (index - currentIndex + images.length) % images.length;
+            let position = 0;
+            if (diff === 0) position = 0;
+            else if (diff === 1 || diff === -(images.length - 1)) position = 1;
+            else if (diff === images.length - 1 || diff === -1) position = -1;
+            else position = 2;
+
+            const isVisible = position !== 2;
+            return (
+              <motion.div key={img.id} drag={isVisible ? "x" : false} dragConstraints={{ left: 0, right: 0 }} onDragEnd={handleDragEnd} initial={false}
+                animate={{
+                  opacity: position === 0 ? 1 : (position === 2 ? 0 : 0.4), x: position === 2 ? 0 : position * 150,
+                  scale: position === 2 ? 0.5 : (position === 0 ? 1 : 0.85) * (imageScale / 100), zIndex: position === 0 ? 10 : (position === 2 ? -1 : 1),
+                  rotateY: position === 2 ? 0 : position * -25,
+                }}
+                transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                className="absolute w-[75%] max-w-[320px] aspect-[4/5] rounded-2xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing" style={{ pointerEvents: isVisible ? 'auto' : 'none' }}>
+                <img src={img.url} alt="Galeri" className="w-full h-full object-cover pointer-events-none" />
+                <div className="absolute inset-0 bg-black/20 pointer-events-none transition-opacity duration-700" style={{ opacity: position === 0 ? 0 : 0.5 }} />
+              </motion.div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    function App() {
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [showLogin, setShowLogin] = useState(false);
+      const [showPassModal, setShowPassModal] = useState(false);
+      const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
+      const [isSaving, setIsSaving] = useState(false);
+      const [loadingData, setLoadingData] = useState(true);
+      const [images, setImages] = useState([]);
+      
+      const [credentials, setCredentials] = useState({ user: 'admin', pass: 'tester123' });
+      const [settings, setSettings] = useState({
+        headerHeight: 25, headerBgImage: '', headerBgOpacity: 30, headerGradientTop: 80, headerGradientBottom: 80, headerBgPositionY: 50,
+        headerText1: 'P O R T F O L I O', headerText2: 'ADNAN VISUALS', headerText3: 'Estetika dalam Lensa',
+        headerFontSize1: 12, headerFontSize2: 26, headerFontSize3: 14, headerTextPositionY: 50,
+        footerText1: 'SUBSCRIBE TO NEWSLETTER', footerText2: '© 2026 HAK CIPTA DILINDUNGI', footerFontSize1: 12, footerFontSize2: 10, footerTextPositionY: 50,
+        slideDuration: 4000, imageScale: 100,
+      });
+
+      // MENGAMBIL DATA DARI GOOGLE APPS SCRIPT
+      useEffect(() => {
+        fetch(API_URL)
+          .then(res => res.json())
+          .then(data => {
+            if (data.settings) setSettings(data.settings);
+            if (data.creds) setCredentials(data.creds);
+            if (data.images) setImages(data.images);
+            setLoadingData(false);
+          }).catch(() => {
+            alert("Gagal terhubung ke Database Google");
+            setLoadingData(false);
+          });
+      }, []);
+
+      // MENYIMPAN PENGATURAN KE GOOGLE APPS SCRIPT
+      const handleSaveSettings = () => {
+        setIsSaving(true);
+        fetch(API_URL, {
+          method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ settings: settings })
+        }).then(() => {
+          alert('Pengaturan berhasil disimpan di Cloud Google!');
+          setIsSaving(false);
+        });
+      };
+
+      const handleSaveCreds = () => {
+        fetch(API_URL, {
+          method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ creds: credentials })
+        }).then(() => {
+          alert('Password Admin berhasil diubah!');
+          setShowPassModal(false);
+        });
+      };
+
+      const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 800000) { alert("Ukuran file maks 800KB!"); return; }
+          const reader = new FileReader();
+          reader.onloadend = () => setSettings({ ...settings, headerBgImage: reader.result });
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleLogin = (e) => {
+        e.preventDefault();
+        if (loginForm.user === credentials.user && loginForm.pass === credentials.pass) {
+          setIsAdmin(true); setShowLogin(false); setLoginForm({ user: '', pass: '' });
+        } else alert('Username atau Password salah!');
+      };
+
+      if (loadingData) return <div className="flex h-screen items-center justify-center text-white"><p className="animate-pulse tracking-widest">MEMUAT SISTEM CLOUD...</p></div>;
+
+      const FrontEndView = () => (
+        <div className="relative bg-[#050505] text-white w-full h-full flex flex-col items-center justify-between overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16' }}>
+          <header className="relative w-full flex flex-col items-center justify-center z-10 transition-all duration-500" style={{ height: `${settings.headerHeight}%` }}>
+            {settings.headerBgImage && (
+              <div className="absolute inset-0 w-full h-full overflow-hidden">
+                <img src={settings.headerBgImage} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `50% ${settings.headerBgPositionY}%`, opacity: settings.headerBgOpacity / 100 }} />
+                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(5,5,5,${settings.headerGradientTop / 100}) 0%, transparent 50%, rgba(5,5,5,${settings.headerGradientBottom / 100}) 100%)` }} />
+              </div>
+            )}
+            <div className="relative z-20 flex flex-col items-center text-center w-full" style={{ transform: `translateY(${settings.headerTextPositionY - 50}px)` }}>
+              <h3 className="tracking-[0.3em] font-light text-gray-400 mb-2" style={{ fontSize: `${settings.headerFontSize1}px` }}>{settings.headerText1}</h3>
+              <h1 className="tracking-wide text-white mb-2" style={{ fontSize: `${settings.headerFontSize2}px`, fontFamily: 'Times New Roman, serif' }}>{settings.headerText2}</h1>
+              <p className="font-light text-gray-400 italic" style={{ fontSize: `${settings.headerFontSize3}px` }}>{settings.headerText3}</p>
+            </div>
+          </header>
+          <main className="flex-1 w-full relative z-0 flex items-center justify-center">
+            <Gallery3D images={images} imageScale={settings.imageScale} slideDuration={settings.slideDuration}/>
+          </main>
+          <footer className="relative w-full py-8 flex flex-col items-center justify-center z-10 bg-gradient-to-t from-[#050505] to-transparent">
+            <div className="flex flex-col items-center" style={{ transform: `translateY(${settings.footerTextPositionY - 50}px)` }}>
+              <button className="tracking-widest border-b border-gray-600 pb-1 mb-4 text-gray-300" style={{ fontSize: `${settings.footerFontSize1}px` }}>{settings.footerText1}</button>
+              <p className="tracking-widest text-gray-500 cursor-pointer" onClick={() => !isAdmin && setShowLogin(true)} style={{ fontSize: `${settings.footerFontSize2}px` }}>{settings.footerText2}</p>
+            </div>
+          </footer>
+        </div>
+      );
+
+      if (!isAdmin) {
+        return (
+          <div className="bg-black min-h-screen w-full flex items-center justify-center">
+            <div className="w-full max-w-[450px] h-[100svh] aspect-[9/16] relative"><FrontEndView/></div>
+            {showLogin && (
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+                <form onSubmit={handleLogin} className="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl text-white w-full max-w-sm relative">
+                  <button type="button" onClick={() => setShowLogin(false)} className="absolute top-4 right-4 text-gray-400"><i className="fas fa-times"></i></button>
+                  <div className="flex justify-center mb-6"><i className="fas fa-lock text-3xl text-gray-400"></i></div>
+                  <h2 className="text-xl text-center mb-6 tracking-wide" style={{fontFamily: 'Times New Roman'}}>Akses Terbatas</h2>
+                  <input type="text" placeholder="Username" required value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 mb-4 focus:outline-none" />
+                  <input type="password" placeholder="Password" required value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 mb-6 focus:outline-none" />
+                  <button type="submit" className="w-full bg-white text-black py-3 rounded-lg font-semibold tracking-wide hover:bg-gray-200">LOGIN</button>
+                </form>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex h-screen bg-gray-100 text-gray-800 overflow-hidden">
+          <div className="w-1/2 h-full hidden lg:flex items-center justify-center bg-gray-200 shadow-inner p-8 relative">
+            <div className="relative h-full aspect-[9/16] bg-black rounded-[3rem] border-[14px] border-gray-900 shadow-2xl overflow-hidden ring-4 ring-white">
+              <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 w-32 mx-auto rounded-b-3xl z-50"></div>
+              <FrontEndView/>
+            </div>
+          </div>
+          <div className="w-full lg:w-1/2 h-full overflow-y-auto bg-white p-8 lg:p-12">
+            <div className="flex justify-between items-center border-b pb-6 mb-8 sticky top-0 bg-white/90 backdrop-blur z-20">
+              <div>
+                <h1 className="text-2xl font-bold"><i className="fas fa-cog text-blue-600 mr-2"></i> Dashboard Admin</h1>
+                <p className="text-gray-500 text-sm mt-1">GitHub Pages Edition</p>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => setIsAdmin(false)} className="px-4 py-2 bg-gray-100 rounded-lg text-sm"><i className="fas fa-sign-out-alt mr-2"></i>Kembali</button>
+                <button onClick={() => setShowPassModal(true)} className="px-4 py-2 bg-orange-50 text-orange-600 rounded-lg text-sm"><i className="fas fa-key mr-2"></i>Password</button>
+                <button onClick={handleSaveSettings} disabled={isSaving} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm shadow-md">{isSaving ? 'Menyimpan...' : <><i className="fas fa-save mr-2"></i>Simpan</>}</button>
+              </div>
+            </div>
+
+            <div className="space-y-8 max-w-2xl mx-auto pb-20">
+              <section className="bg-gray-50 p-6 rounded-2xl border">
+                <h2 className="font-bold mb-4"><i className="fas fa-border-all mr-2"></i> 1. Pengaturan Header</h2>
+                <div className="space-y-4">
+                  <div><label className="text-sm block mb-1">Tinggi Area (%)</label><input type="range" min="15" max="40" value={settings.headerHeight} onChange={e => setSettings({...settings, headerHeight: Number(e.target.value)})} className="w-full" /></div>
+                  <div className="p-4 bg-white rounded-xl border">
+                    <label className="text-sm block mb-2"><i className="fas fa-image mr-2"></i>Latar Belakang Gambar</label>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm mb-4"/>
+                    {settings.headerBgImage && (
+                      <div className="grid grid-cols-2 gap-4">
+                        <div><label className="text-xs text-gray-500">Transparansi</label><input type="range" min="0" max="100" value={settings.headerBgOpacity} onChange={e => setSettings({...settings, headerBgOpacity: Number(e.target.value)})} className="w-full" /></div>
+                        <div><label className="text-xs text-gray-500">Posisi Vertikal</label><input type="range" min="0" max="100" value={settings.headerBgPositionY} onChange={e => setSettings({...settings, headerBgPositionY: Number(e.target.value)})} className="w-full" /></div>
+                        <div><label className="text-xs text-gray-500">Gradient Atas</label><input type="range" min="0" max="100" value={settings.headerGradientTop} onChange={e => setSettings({...settings, headerGradientTop: Number(e.target.value)})} className="w-full" /></div>
+                        <div><label className="text-xs text-gray-500">Gradient Bawah</label><input type="range" min="0" max="100" value={settings.headerGradientBottom} onChange={e => setSettings({...settings, headerGradientBottom: Number(e.target.value)})} className="w-full" /></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4 bg-white rounded-xl border space-y-4">
+                    <label className="text-sm"><i className="fas fa-font mr-2"></i>Teks Header</label>
+                    <div><label className="text-xs text-gray-500">Posisi Vertikal Teks</label><input type="range" min="0" max="100" value={settings.headerTextPositionY} onChange={e => setSettings({...settings, headerTextPositionY: Number(e.target.value)})} className="w-full" /></div>
+                    {[1, 2, 3].map(num => (
+                      <div key={num} className="flex gap-2">
+                        <input type="text" value={settings[`headerText${num}`]} onChange={e => setSettings({...settings, [`headerText${num}`]: e.target.value})} className="flex-1 border rounded px-2 py-1 text-sm"/>
+                        <input type="range" min="8" max="50" value={settings[`headerFontSize${num}`]} onChange={e => setSettings({...settings, [`headerFontSize${num}`]: Number(e.target.value)})} className="w-24" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="bg-gray-50 p-6 rounded-2xl border space-y-4">
+                <h2 className="font-bold"><i className="fas fa-image mr-2"></i> 2. Pengaturan Galeri</h2>
+                <div><label className="text-sm block mb-1">Durasi Tampil (Steady): {settings.slideDuration/1000}s</label><input type="range" min="1000" max="10000" step="500" value={settings.slideDuration} onChange={e => setSettings({...settings, slideDuration: Number(e.target.value)})} className="w-full" /></div>
+                <div><label className="text-sm block mb-1">Skala Foto: {settings.imageScale}%</label><input type="range" min="50" max="150" value={settings.imageScale} onChange={e => setSettings({...settings, imageScale: Number(e.target.value)})} className="w-full" /></div>
+              </section>
+
+              <section className="bg-gray-50 p-6 rounded-2xl border space-y-4">
+                <h2 className="font-bold"><i className="fas fa-font mr-2"></i> 3. Pengaturan Footer</h2>
+                <div><label className="text-xs text-gray-500">Posisi Vertikal</label><input type="range" min="0" max="100" value={settings.footerTextPositionY} onChange={e => setSettings({...settings, footerTextPositionY: Number(e.target.value)})} className="w-full" /></div>
+                {[1, 2].map(num => (
+                  <div key={num} className="flex gap-2">
+                    <input type="text" value={settings[`footerText${num}`]} onChange={e => setSettings({...settings, [`footerText${num}`]: e.target.value})} className="flex-1 border rounded px-2 py-1 text-sm"/>
+                    <input type="range" min="8" max="30" value={settings[`footerFontSize${num}`]} onChange={e => setSettings({...settings, [`footerFontSize${num}`]: Number(e.target.value)})} className="w-24" />
+                  </div>
+                ))}
+              </section>
+            </div>
+          </div>
+
+          {showPassModal && (
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999]">
+              <div className="bg-white p-8 rounded-xl w-full max-w-sm">
+                <h3 className="font-bold mb-4 text-xl"><i className="fas fa-key mr-2"></i> Ubah Login</h3>
+                <input type="text" value={credentials.user} onChange={e => setCredentials({...credentials, user: e.target.value})} className="w-full border p-2 mb-2 rounded" placeholder="Username Baru" />
+                <input type="text" value={credentials.pass} onChange={e => setCredentials({...credentials, pass: e.target.value})} className="w-full border p-2 mb-4 rounded" placeholder="Password Baru" />
+                <div className="flex justify-end gap-2">
+                  <button onClick={() => setShowPassModal(false)} className="px-4 py-2 bg-gray-200 rounded">Batal</button>
+                  <button onClick={handleSaveCreds} className="px-4 py-2 bg-black text-white rounded">Simpan</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
