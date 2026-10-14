@@ -2,284 +2,810 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Portofolio fotografi Adnan Visuals">
   <title>Adnan Visuals - Gallery</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,200;0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-  <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+
   <style>
-    body { font-family: sans-serif; background-color: black; margin: 0; padding: 0; }
+    :root {
+      --ink: #f2f2f2; --mute: #9a9a9a;
+      --text: #161616; --sub: #6b6b6b; --rule: #e4e4e4; --field: #cfcfcf; --bg: #f4f4f4;
+      --ok: #1a7f4b; --warn: #a15c00; --err: #b3261e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; background: #000; color: var(--ink); -webkit-font-smoothing: antialiased; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; background: none; border: 0; padding: 0; }
+    :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+    .boot { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--mute); font-weight: 300; letter-spacing: .3em; font-size: 13px; line-height: 2; }
+
+    /* ---------- Halaman tamu ---------- */
+    .page { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; background: #000; }
+    .frame { position: relative; background: #000; overflow: hidden; container-type: inline-size; }
+    .frame-live { width: 100%; height: 100vh; height: 100svh; }
+    @media (min-width: 640px) {
+      .page { padding: 24px; }
+      .frame-live { width: auto; height: min(900px, calc(100vh - 48px)); height: min(900px, calc(100svh - 48px)); aspect-ratio: 9 / 16; border-radius: 28px; border: 1px solid #2a2a2a; }
+    }
+
+    /* ---------- Panggung (dipakai halaman tamu dan pratinjau admin) ---------- */
+    .stage { --px: .25cqw; width: 100%; height: 100%; display: flex; flex-direction: column; background: #000; color: var(--ink); position: relative; overflow: hidden; }
+    .hd { position: relative; flex: none; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 2; padding: 0 calc(var(--px) * 24); }
+    .hd-bg { position: absolute; inset: 0; overflow: hidden; }
+    .hd-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hd-fade { position: absolute; inset: 0; }
+    .hd-text { position: relative; width: 100%; }
+    .t1 { margin: 0 0 calc(var(--px) * 10); font-weight: 300; letter-spacing: .5em; padding-left: .5em; color: var(--mute); overflow-wrap: anywhere; }
+    .t2 { margin: 0 0 calc(var(--px) * 8); font-weight: 300; letter-spacing: .28em; padding-left: .28em; line-height: 1.15; color: #fff; overflow-wrap: anywhere; }
+    .t3 { margin: 0; font-weight: 300; font-style: italic; letter-spacing: .04em; color: var(--mute); overflow-wrap: anywhere; }
+
+    .gl { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; z-index: 1; }
+    .slides { position: relative; flex: 1; min-height: 0; perspective: calc(var(--px) * 1000); touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
+    .slides.dragging { cursor: grabbing; }
+    .slides:focus-visible { outline-offset: -3px; }
+    .slide { position: absolute; left: 50%; top: 50%; width: calc(var(--px) * 272); aspect-ratio: 4 / 5; border-radius: 2px; overflow: hidden; background: #161616; will-change: transform, opacity;
+             transition: transform .8s cubic-bezier(.25, .1, .25, 1), opacity .8s cubic-bezier(.25, .1, .25, 1); }
+    .slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .counter { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 16); padding: calc(var(--px) * 4) 0 calc(var(--px) * 12); font-size: calc(var(--px) * 12); letter-spacing: .2em; color: var(--mute); font-variant-numeric: tabular-nums; }
+    .counter button { width: calc(var(--px) * 30); height: calc(var(--px) * 30); display: grid; place-items: center; border-radius: 50%; color: var(--mute); }
+    .counter button:hover { color: #fff; }
+    .counter svg { width: calc(var(--px) * 14); height: calc(var(--px) * 14); }
+    .empty { flex: 1; display: grid; place-items: center; color: var(--mute); font-weight: 300; font-size: calc(var(--px) * 13); letter-spacing: .12em; }
+
+    .ft { flex: none; position: relative; z-index: 2; display: flex; justify-content: center; padding: calc(var(--px) * 8) calc(var(--px) * 24) calc(var(--px) * 26); }
+    .ft-in { display: flex; flex-direction: column; align-items: center; gap: calc(var(--px) * 14); text-align: center; }
+    .ft1 { font-weight: 300; letter-spacing: .3em; color: #d6d6d6; text-decoration: none; }
+    a.ft1 { padding-bottom: .4em; border-bottom: 1px solid #5a5a5a; }
+    a.ft1:hover { color: #fff; border-color: #bdbdbd; }
+    .ft2 { font-weight: 300; letter-spacing: .22em; color: var(--mute); }
+    button.ft2:hover { color: #fff; }
+
+    @supports not (width: 1cqw) { .stage { --px: 1px; } }
+    @media (prefers-reduced-motion: reduce) { .slide { transition-duration: .01s; } }
+
+    /* ---------- Modal & toast ---------- */
+    .scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, .72); display: grid; place-items: center; padding: 16px; z-index: 50; }
+    .modal { width: 100%; max-width: 380px; background: #fff; color: var(--text); border-radius: 14px; padding: 28px; }
+    .modal h2 { margin: 0 0 4px; font-size: 20px; font-weight: 500; }
+    .modal p.lead { margin: 0 0 20px; color: var(--sub); font-size: 14px; line-height: 1.5; }
+    .modal .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 80; max-width: min(92vw, 460px); padding: 12px 18px; border-radius: 10px; background: #111; color: #fff; font-size: 14px; line-height: 1.4; text-align: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .25); }
+    .toast.error { background: var(--err); }
+    .toast.warn { background: var(--warn); }
+
+    /* ---------- Admin ---------- */
+    .admin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 600px); grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100svh; background: var(--bg); color: var(--text); }
+    .bar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 28px; background: #fff; border-bottom: 1px solid var(--rule); }
+    .bar h1 { margin: 0; font-size: 18px; font-weight: 500; }
+    .status { display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; font-size: 13px; color: var(--sub); }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+    .status.dirty i { background: #d98a00; }
+    .bar-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tabs { display: none; width: 100%; gap: 4px; }
+    .tabs button { flex: 1; height: 38px; border-radius: 8px; font-size: 14px; color: var(--sub); border: 1px solid var(--rule); background: #fff; }
+    .tabs button[aria-selected="true"] { background: #000; color: #fff; border-color: #000; }
+    .prev { display: flex; align-items: center; justify-content: center; padding: 32px; min-width: 0; min-height: 0; background: #e8e8e8; container-type: size; }
+    .frame-prev { width: min(100cqw, calc(100cqh * 9 / 16)); height: auto; aspect-ratio: 9 / 16; border-radius: 34px; border: 6px solid #000; }
+    .panel { overflow-y: auto; background: #fff; border-left: 1px solid var(--rule); min-height: 0; }
+    .note { margin: 20px 28px 0; padding: 12px 14px; border-radius: 8px; background: #fff6e5; color: #6b4300; font-size: 14px; line-height: 1.5; }
+    .sec { padding: 26px 28px; border-bottom: 1px solid var(--rule); }
+    .sec:last-child { border-bottom: 0; padding-bottom: 80px; }
+    .sec h2 { margin: 0 0 18px; font-size: 15px; font-weight: 500; }
+    .row { margin-bottom: 18px; }
+    .row-h { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-bottom: 6px; }
+    .row-h output { color: var(--sub); font-variant-numeric: tabular-nums; }
+    input[type=range] { width: 100%; height: 22px; margin: 0; accent-color: #000; }
+    .txt { margin-bottom: 16px; }
+    .txt > label { display: block; font-size: 14px; margin-bottom: 6px; }
+    .txt-in { display: grid; grid-template-columns: minmax(0, 1fr) 130px; gap: 12px; align-items: center; }
+    .size { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 6px; align-items: center; font-size: 13px; color: var(--sub); text-align: right; }
+    .hint { margin: 6px 0 0; font-size: 13px; color: var(--sub); line-height: 1.4; }
+    .field { display: block; width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--field); border-radius: 8px; background: #fff; font-size: 15px; color: var(--text); }
+    .field:focus-visible { outline: 2px solid #000; outline-offset: 1px; border-color: #000; }
+    .fl { display: block; font-size: 14px; margin: 14px 0 6px; }
+    .fl:first-of-type { margin-top: 0; }
+    .err { margin: 12px 0 0; color: var(--err); font-size: 14px; line-height: 1.4; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--field); background: #fff; color: var(--text); font-size: 14px; white-space: nowrap; }
+    .btn:hover { background: #f6f6f6; }
+    .btn.primary { background: #000; border-color: #000; color: #fff; }
+    .btn.primary:hover { background: #222; }
+    .btn.primary:disabled { background: #c9c9c9; border-color: #c9c9c9; cursor: not-allowed; }
+    .btn.quiet { border-color: transparent; background: transparent; }
+    .btn.quiet:hover { background: #f1f1f1; }
+    .file { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .file input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .file label.btn:focus-within { outline: 2px solid #000; outline-offset: 2px; }
+    .sub-h { margin: 22px 0 12px; font-size: 14px; font-weight: 500; }
+    .show { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--sub); }
+
+    @media (max-width: 1023px) {
+      .admin { display: flex; flex-direction: column; }
+      .bar { padding: 12px 16px; }
+      .tabs { display: flex; }
+      .admin[data-tab="settings"] .prev { display: none; }
+      .admin[data-tab="preview"] .panel { display: none; }
+      .prev { flex: 1; padding: 16px; }
+      .panel { flex: 1; border-left: 0; }
+      .sec { padding: 22px 16px; }
+      .note { margin: 16px 16px 0; }
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root"><div class="boot">MEMUAT</div></div>
+  <noscript><div class="boot">Halaman ini membutuhkan JavaScript.</div></noscript>
+  <script>
+    setTimeout(function () {
+      if (window.__avMounted) return;
+      var r = document.getElementById('root');
+      if (r && r.firstElementChild && r.firstElementChild.className === 'boot') {
+        r.firstElementChild.innerHTML = 'Halaman gagal dimuat.<br>Periksa koneksi internet, lalu muat ulang.';
+      }
+    }, 12000);
+  </script>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    const { motion, AnimatePresence } = window.Motion;
+  <script type="text/babel" data-presets="react">
+    const { useState, useEffect, useRef, useMemo, useId } = React;
 
-    // === GANTI DENGAN LINK /exec DARI GOOGLE APPS SCRIPT ANDA ===
-    const API_URL = "https://script.google.com/macros/s/AKfycbxUJcRsXFD8UELot6DdK6YmDJyKM3wlhsljoqnR0zmk_SPNbDm8t_EGMev8D5fS7IZz/exec"; 
-    // ============================================================
+    /* =====================================================================
+       KONFIGURASI: tempel link /exec dari Google Apps Script (Deploy > Web app)
+       ===================================================================== */
+    const API_URL = "https://script.google.com/macros/s/AKfycbwDJK-FE2CgErBy22aEZaUpnDyK0uoYQwLalU9mTYlvpK15Ify35LG21XX_HDvz6L2Z/exec";
+    /* ===================================================================== */
 
-    function Gallery3D({ images, slideDuration, imageScale }) {
-      const [currentIndex, setCurrentIndex] = useState(0);
+    const API_READY = /^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(API_URL);
 
-      useEffect(() => {
-        if (!images || images.length === 0) return;
-        const timer = setInterval(() => setCurrentIndex((prev) => (prev + 1) % images.length), slideDuration);
-        return () => clearInterval(timer);
-      }, [images, currentIndex, slideDuration]);
+    /* ---------- Pengaturan bawaan & batas nilai ---------- */
+    const DEFAULTS = {
+      headerHeight: 25, headerBgImage: '', headerBgOpacity: 30, headerGradientTop: 80, headerGradientBottom: 80, headerBgPositionY: 50,
+      headerText1: 'PORTFOLIO', headerText2: 'ADNAN VISUALS', headerText3: 'Estetika dalam Lensa',
+      headerFontSize1: 12, headerFontSize2: 26, headerFontSize3: 14, headerTextPositionY: 50,
+      footerText1: 'SUBSCRIBE TO NEWSLETTER', footerLink: '', footerText2: '© 2026 HAK CIPTA DILINDUNGI',
+      footerFontSize1: 12, footerFontSize2: 10, footerTextPositionY: 50,
+      slideDuration: 4000, imageScale: 100,
+    };
+    const RANGES = {
+      headerHeight: [15, 40], headerBgOpacity: [0, 100], headerGradientTop: [0, 100], headerGradientBottom: [0, 100], headerBgPositionY: [0, 100],
+      headerFontSize1: [8, 50], headerFontSize2: [8, 50], headerFontSize3: [8, 50], headerTextPositionY: [0, 100],
+      footerFontSize1: [8, 30], footerFontSize2: [8, 30], footerTextPositionY: [0, 100],
+      slideDuration: [1000, 10000], imageScale: [50, 150],
+    };
+    const TEXT_KEYS = ['headerBgImage', 'headerText1', 'headerText2', 'headerText3', 'footerText1', 'footerLink', 'footerText2'];
 
-      const handleDragEnd = (e, { offset }) => {
-        if (offset.x > 50) setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-        else if (offset.x < -50) setCurrentIndex((prev) => (prev + 1) % images.length);
-      };
-
-      if (!images || images.length === 0) return <div className="text-gray-600 text-sm italic">Tidak ada foto ditemukan</div>;
-
-      return (
-        <div className="relative w-full h-[60%] perspective-[1000px] flex items-center justify-center">
-          {images.map((img, index) => {
-            const diff = (index - currentIndex + images.length) % images.length;
-            let position = 0;
-            if (diff === 0) position = 0;
-            else if (diff === 1 || diff === -(images.length - 1)) position = 1;
-            else if (diff === images.length - 1 || diff === -1) position = -1;
-            else position = 2;
-
-            const isVisible = position !== 2;
-            return (
-              <motion.div key={img.id} drag={isVisible ? "x" : false} dragConstraints={{ left: 0, right: 0 }} onDragEnd={handleDragEnd} initial={false}
-                animate={{
-                  opacity: position === 0 ? 1 : (position === 2 ? 0 : 0.4), x: position === 2 ? 0 : position * 150,
-                  scale: position === 2 ? 0.5 : (position === 0 ? 1 : 0.85) * (imageScale / 100), zIndex: position === 0 ? 10 : (position === 2 ? -1 : 1),
-                  rotateY: position === 2 ? 0 : position * -25,
-                }}
-                transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
-                className="absolute w-[75%] max-w-[320px] aspect-[4/5] rounded-2xl shadow-2xl overflow-hidden cursor-grab active:cursor-grabbing" style={{ pointerEvents: isVisible ? 'auto' : 'none' }}>
-                <img src={img.url} alt="Galeri" className="w-full h-full object-cover pointer-events-none" />
-                <div className="absolute inset-0 bg-black/20 pointer-events-none transition-opacity duration-700" style={{ opacity: position === 0 ? 0 : 0.5 }} />
-              </motion.div>
-            );
-          })}
-        </div>
-      );
+    // Data dari database bisa kosong, berupa teks JSON, atau angka sebagai string: semuanya dirapikan di sini.
+    function normalizeSettings(raw) {
+      let src = raw;
+      if (typeof src === 'string') { try { src = JSON.parse(src); } catch (e) { src = {}; } }
+      if (!src || typeof src !== 'object') src = {};
+      const out = Object.assign({}, DEFAULTS);
+      Object.keys(RANGES).forEach((k) => {
+        const v = src[k];
+        const n = Number(v);
+        if (v !== undefined && v !== null && v !== '' && isFinite(n)) out[k] = Math.min(RANGES[k][1], Math.max(RANGES[k][0], n));
+      });
+      TEXT_KEYS.forEach((k) => { if (typeof src[k] === 'string') out[k] = src[k]; });
+      return out;
     }
 
-    function App() {
-      const [isAdmin, setIsAdmin] = useState(false);
-      const [showLogin, setShowLogin] = useState(false);
-      const [showPassModal, setShowPassModal] = useState(false);
-      const [loginForm, setLoginForm] = useState({ user: '', pass: '' });
-      const [isSaving, setIsSaving] = useState(false);
-      const [loadingData, setLoadingData] = useState(true);
-      const [images, setImages] = useState([]);
-      
-      const [credentials, setCredentials] = useState({ user: 'admin', pass: 'tester123' });
-      const [settings, setSettings] = useState({
-        headerHeight: 25, headerBgImage: '', headerBgOpacity: 30, headerGradientTop: 80, headerGradientBottom: 80, headerBgPositionY: 50,
-        headerText1: 'P O R T F O L I O', headerText2: 'ADNAN VISUALS', headerText3: 'Estetika dalam Lensa',
-        headerFontSize1: 12, headerFontSize2: 26, headerFontSize3: 14, headerTextPositionY: 50,
-        footerText1: 'SUBSCRIBE TO NEWSLETTER', footerText2: '© 2026 HAK CIPTA DILINDUNGI', footerFontSize1: 12, footerFontSize2: 10, footerTextPositionY: 50,
-        slideDuration: 4000, imageScale: 100,
+    // Tautan Google Drive lama (uc?id=...) sering ditolak browser; format thumbnail lebih andal.
+    function toImageUrl(u) {
+      if (typeof u !== 'string') return '';
+      const m = u.match(/drive\.google\.com\/(?:uc\?(?:[^#]*&)?id=|file\/d\/|open\?id=|thumbnail\?id=)([\w-]+)/);
+      if (m && !/[?&]sz=/.test(u)) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1200';
+      return u;
+    }
+    function normalizeImages(raw) {
+      if (typeof raw === 'string') { try { raw = JSON.parse(raw); } catch (e) { raw = []; } }
+      if (!Array.isArray(raw)) return [];
+      return raw.map((it, i) => {
+        if (typeof it === 'string') return { id: 'i' + i, url: toImageUrl(it), name: '' };
+        if (!it || typeof it !== 'object') return null;
+        return { id: String(it.id || 'i' + i), url: toImageUrl(it.url || it.link || it.src || ''), name: String(it.name || '') };
+      }).filter((x) => x && x.url);
+    }
+
+    // Tombol footer hanya menerima http(s), mailto, atau tel supaya tidak bisa diisi skrip berbahaya.
+    function safeLink(v) {
+      const s = String(v || '').trim();
+      if (!s) return '';
+      if (/^(https?:|mailto:|tel:)/i.test(s)) return s;
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) return 'mailto:' + s;
+      if (/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(s)) return 'https://' + s;
+      return '';
+    }
+
+    const store = {
+      get(k, session) { try { return (session ? sessionStorage : localStorage).getItem(k); } catch (e) { return null; } },
+      set(k, v, session) { try { (session ? sessionStorage : localStorage).setItem(k, v); } catch (e) { /* diabaikan */ } },
+      del(k, session) { try { (session ? sessionStorage : localStorage).removeItem(k); } catch (e) { /* diabaikan */ } },
+    };
+
+    /* ---------- Foto contoh untuk mode demo (belum ada Apps Script) ---------- */
+    function demoImages() {
+      const tones = [['#3a3a3a', '#8c8c8c'], ['#2b2f33', '#9aa3ab'], ['#4a4540', '#b5aca1'], ['#262626', '#6f6f6f'], ['#35393c', '#a7aeb3'], ['#41403d', '#9c9a94']];
+      return tones.map((t, i) => {
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + t[0] + '"/><stop offset="1" stop-color="' + t[1] + '"/></linearGradient></defs><rect width="400" height="500" fill="url(#g)"/><rect y="' + (300 + i * 8) + '" width="400" height="200" fill="#000" opacity=".35"/><circle cx="' + (120 + i * 35) + '" cy="' + (170 - i * 6) + '" r="46" fill="#fff" opacity=".18"/></svg>';
+        return { id: 'demo' + i, url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg), name: 'Contoh foto ' + (i + 1) };
       });
+    }
 
-      // MENGAMBIL DATA DARI GOOGLE APPS SCRIPT
+    /* ---------- Komunikasi dengan Google Apps Script ---------- */
+    class ApiError extends Error {
+      constructor(message, code) { super(message); this.code = code || 'ERROR'; }
+    }
+    async function request(url, options) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 30000);
+      try {
+        const res = await fetch(url, Object.assign({ redirect: 'follow', signal: ctrl.signal }, options));
+        if (!res.ok) throw new ApiError('Server menjawab dengan kode ' + res.status + '.', 'HTTP');
+        let data;
+        try { data = await res.json(); } catch (e) { throw new ApiError('Jawaban server tidak terbaca. Pastikan Apps Script sudah di-deploy ulang sebagai versi baru.', 'PARSE'); }
+        if (!data || data.ok === false) throw new ApiError((data && data.error) || 'Permintaan ditolak server.', (data && data.code) || 'ERROR');
+        return data;
+      } catch (e) {
+        if (e instanceof ApiError) throw e;
+        if (e && e.name === 'AbortError') throw new ApiError('Server terlalu lama menjawab.', 'TIMEOUT');
+        throw new ApiError('Tidak bisa terhubung ke server. Periksa koneksi internet.', 'NETWORK');
+      } finally { clearTimeout(timer); }
+    }
+    const apiLoad = () => request(API_URL + (API_URL.indexOf('?') > -1 ? '&' : '?') + 'action=public');
+    const apiPost = (payload) => request(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+
+    /* ---------- Kompres gambar header sebelum diunggah ---------- */
+    function compressImage(file, maxSide, quality) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+            const w = Math.max(1, Math.round(img.naturalWidth * scale));
+            const h = Math.max(1, Math.round(img.naturalHeight * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            let out = canvas.toDataURL('image/jpeg', quality);
+            if (out.length > 1500000) out = canvas.toDataURL('image/jpeg', 0.6);
+            resolve(out);
+          } catch (e) { reject(e); } finally { URL.revokeObjectURL(url); }
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Gambar tidak terbaca')); };
+        img.src = url;
+      });
+    }
+
+    /* =====================================================================
+       Tampilan publik: dipakai halaman tamu dan pratinjau admin
+       ===================================================================== */
+    const px = (n) => 'calc(var(--px) * ' + n + ')';
+    const pad2 = (n) => String(n).padStart(2, '0');
+
+    function Carousel({ images, slideDuration, imageScale }) {
+      const n = images.length;
+      const [index, setIndex] = useState(0);
+      const [drag, setDrag] = useState(0);
+      const [dragging, setDragging] = useState(false);
+      const [broken, setBroken] = useState({});
+      const startX = useRef(null);
+      const moved = useRef(false);
+      const box = useRef(null);
+
+      useEffect(() => { if (index >= n) setIndex(0); }, [n, index]);
+
       useEffect(() => {
-        fetch(API_URL)
-          .then(res => res.json())
-          .then(data => {
-            if (data.settings) setSettings(data.settings);
-            if (data.creds) setCredentials(data.creds);
-            if (data.images) setImages(data.images);
-            setLoadingData(false);
-          }).catch(() => {
-            alert("Gagal terhubung ke Database Google");
-            setLoadingData(false);
-          });
-      }, []);
+        if (n < 2 || dragging) return undefined;
+        const t = setTimeout(() => setIndex((i) => (i + 1) % n), Math.max(1000, Number(slideDuration) || 4000));
+        return () => clearTimeout(t);
+      }, [index, n, slideDuration, dragging]);
 
-      // MENYIMPAN PENGATURAN KE GOOGLE APPS SCRIPT
-      const handleSaveSettings = () => {
-        setIsSaving(true);
-        fetch(API_URL, {
-          method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ settings: settings })
-        }).then(() => {
-          alert('Pengaturan berhasil disimpan di Cloud Google!');
-          setIsSaving(false);
-        });
-      };
+      if (n === 0) return <div className="empty">Belum ada foto.</div>;
 
-      const handleSaveCreds = () => {
-        fetch(API_URL, {
-          method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ creds: credentials })
-        }).then(() => {
-          alert('Password Admin berhasil diubah!');
-          setShowPassModal(false);
-        });
-      };
+      const go = (d) => setIndex((i) => (i + d + n) % n);
+      const unit = () => ((box.current && box.current.getBoundingClientRect().width) || 400) / 400;
+      const scale = imageScale / 100;
 
-      const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          if (file.size > 800000) { alert("Ukuran file maks 800KB!"); return; }
-          const reader = new FileReader();
-          reader.onloadend = () => setSettings({ ...settings, headerBgImage: reader.result });
-          reader.readAsDataURL(file);
+      const finish = (e, commit) => {
+        if (startX.current === null) return;
+        const dx = (e.clientX - startX.current) / unit();
+        startX.current = null;
+        setDragging(false); setDrag(0);
+        if (!commit) return;
+        if (dx > 40) go(-1);
+        else if (dx < -40) go(1);
+        else if (!moved.current) {
+          const el = e.target && e.target.closest ? e.target.closest('[data-rel]') : null;
+          const rel = el ? Number(el.getAttribute('data-rel')) : 0;
+          if (rel !== 0) go(rel);
         }
       };
 
-      const handleLogin = (e) => {
-        e.preventDefault();
-        if (loginForm.user === credentials.user && loginForm.pass === credentials.pass) {
-          setIsAdmin(true); setShowLogin(false); setLoginForm({ user: '', pass: '' });
-        } else alert('Username atau Password salah!');
-      };
-
-      if (loadingData) return <div className="flex h-screen items-center justify-center text-white"><p className="animate-pulse tracking-widest">MEMUAT SISTEM CLOUD...</p></div>;
-
-      const FrontEndView = () => (
-        <div className="relative bg-[#050505] text-white w-full h-full flex flex-col items-center justify-between overflow-hidden shadow-2xl" style={{ aspectRatio: '9/16' }}>
-          <header className="relative w-full flex flex-col items-center justify-center z-10 transition-all duration-500" style={{ height: `${settings.headerHeight}%` }}>
-            {settings.headerBgImage && (
-              <div className="absolute inset-0 w-full h-full overflow-hidden">
-                <img src={settings.headerBgImage} className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: `50% ${settings.headerBgPositionY}%`, opacity: settings.headerBgOpacity / 100 }} />
-                <div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, rgba(5,5,5,${settings.headerGradientTop / 100}) 0%, transparent 50%, rgba(5,5,5,${settings.headerGradientBottom / 100}) 100%)` }} />
-              </div>
-            )}
-            <div className="relative z-20 flex flex-col items-center text-center w-full" style={{ transform: `translateY(${settings.headerTextPositionY - 50}px)` }}>
-              <h3 className="tracking-[0.3em] font-light text-gray-400 mb-2" style={{ fontSize: `${settings.headerFontSize1}px` }}>{settings.headerText1}</h3>
-              <h1 className="tracking-wide text-white mb-2" style={{ fontSize: `${settings.headerFontSize2}px`, fontFamily: 'Times New Roman, serif' }}>{settings.headerText2}</h1>
-              <p className="font-light text-gray-400 italic" style={{ fontSize: `${settings.headerFontSize3}px` }}>{settings.headerText3}</p>
-            </div>
-          </header>
-          <main className="flex-1 w-full relative z-0 flex items-center justify-center">
-            <Gallery3D images={images} imageScale={settings.imageScale} slideDuration={settings.slideDuration}/>
-          </main>
-          <footer className="relative w-full py-8 flex flex-col items-center justify-center z-10 bg-gradient-to-t from-[#050505] to-transparent">
-            <div className="flex flex-col items-center" style={{ transform: `translateY(${settings.footerTextPositionY - 50}px)` }}>
-              <button className="tracking-widest border-b border-gray-600 pb-1 mb-4 text-gray-300" style={{ fontSize: `${settings.footerFontSize1}px` }}>{settings.footerText1}</button>
-              <p className="tracking-widest text-gray-500 cursor-pointer" onClick={() => !isAdmin && setShowLogin(true)} style={{ fontSize: `${settings.footerFontSize2}px` }}>{settings.footerText2}</p>
-            </div>
-          </footer>
-        </div>
-      );
-
-      if (!isAdmin) {
-        return (
-          <div className="bg-black min-h-screen w-full flex items-center justify-center">
-            <div className="w-full max-w-[450px] h-[100svh] aspect-[9/16] relative"><FrontEndView/></div>
-            {showLogin && (
-              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-                <form onSubmit={handleLogin} className="bg-zinc-900 border border-zinc-700 p-8 rounded-2xl text-white w-full max-w-sm relative">
-                  <button type="button" onClick={() => setShowLogin(false)} className="absolute top-4 right-4 text-gray-400"><i className="fas fa-times"></i></button>
-                  <div className="flex justify-center mb-6"><i className="fas fa-lock text-3xl text-gray-400"></i></div>
-                  <h2 className="text-xl text-center mb-6 tracking-wide" style={{fontFamily: 'Times New Roman'}}>Akses Terbatas</h2>
-                  <input type="text" placeholder="Username" required value={loginForm.user} onChange={e => setLoginForm({...loginForm, user: e.target.value})} className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 mb-4 focus:outline-none" />
-                  <input type="password" placeholder="Password" required value={loginForm.pass} onChange={e => setLoginForm({...loginForm, pass: e.target.value})} className="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 mb-6 focus:outline-none" />
-                  <button type="submit" className="w-full bg-white text-black py-3 rounded-lg font-semibold tracking-wide hover:bg-gray-200">LOGIN</button>
-                </form>
-              </div>
+      const slides = [];
+      for (let i = 0; i < n; i++) {
+        let rel = (i - index + n) % n;
+        if (rel > n / 2) rel -= n;
+        if (Math.abs(rel) > 2) continue;
+        const a = Math.abs(rel);
+        const s = (a === 0 ? 1 : a === 1 ? 0.85 : 0.7) * scale;
+        const tilt = Math.max(-1, Math.min(1, rel)) * -25;
+        slides.push(
+          <div key={images[i].id + '-' + i} className="slide" data-rel={rel} aria-hidden={rel !== 0}
+            style={{
+              transform: 'translate(-50%, -50%) translate3d(' + px(rel * 190 + drag) + ', 0, 0) scale(' + s + ') rotateY(' + tilt + 'deg)',
+              opacity: a === 0 ? 1 : a === 1 ? 0.4 : 0,
+              zIndex: 10 - a,
+              pointerEvents: a <= 1 ? 'auto' : 'none',
+              transition: dragging ? 'none' : undefined,
+            }}>
+            {!broken[i] && (
+              <img src={images[i].url} alt={images[i].name || ('Foto ' + (i + 1))} draggable={false}
+                onError={() => setBroken((b) => Object.assign({}, b, { [i]: true }))} />
             )}
           </div>
         );
       }
 
       return (
-        <div className="flex h-screen bg-gray-100 text-gray-800 overflow-hidden">
-          <div className="w-1/2 h-full hidden lg:flex items-center justify-center bg-gray-200 shadow-inner p-8 relative">
-            <div className="relative h-full aspect-[9/16] bg-black rounded-[3rem] border-[14px] border-gray-900 shadow-2xl overflow-hidden ring-4 ring-white">
-              <div className="absolute top-0 inset-x-0 h-6 bg-gray-900 w-32 mx-auto rounded-b-3xl z-50"></div>
-              <FrontEndView/>
-            </div>
+        <>
+          <div className={'slides' + (dragging ? ' dragging' : '')} ref={box} tabIndex={0}
+            role="group" aria-roledescription="carousel" aria-label="Galeri foto"
+            onKeyDown={(e) => { if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); } else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); } }}
+            onPointerDown={(e) => { if (n < 2 || (e.pointerType === 'mouse' && e.button !== 0)) return; startX.current = e.clientX; moved.current = false; setDragging(true); }}
+            onPointerMove={(e) => { if (startX.current === null) return; const dx = (e.clientX - startX.current) / unit(); if (Math.abs(dx) > 4) moved.current = true; setDrag(dx); }}
+            onPointerUp={(e) => finish(e, true)}
+            onPointerCancel={(e) => finish(e, false)}
+            onPointerLeave={(e) => finish(e, true)}>
+            {slides}
           </div>
-          <div className="w-full lg:w-1/2 h-full overflow-y-auto bg-white p-8 lg:p-12">
-            <div className="flex justify-between items-center border-b pb-6 mb-8 sticky top-0 bg-white/90 backdrop-blur z-20">
-              <div>
-                <h1 className="text-2xl font-bold"><i className="fas fa-cog text-blue-600 mr-2"></i> Dashboard Admin</h1>
-                <p className="text-gray-500 text-sm mt-1">GitHub Pages Edition</p>
-              </div>
-              <div className="flex gap-2">
-                <button onClick={() => setIsAdmin(false)} className="px-4 py-2 bg-gray-100 rounded-lg text-sm"><i className="fas fa-sign-out-alt mr-2"></i>Kembali</button>
-                <button onClick={() => setShowPassModal(true)} className="px-4 py-2 bg-orange-50 text-orange-600 rounded-lg text-sm"><i className="fas fa-key mr-2"></i>Password</button>
-                <button onClick={handleSaveSettings} disabled={isSaving} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm shadow-md">{isSaving ? 'Menyimpan...' : <><i className="fas fa-save mr-2"></i>Simpan</>}</button>
-              </div>
-            </div>
-
-            <div className="space-y-8 max-w-2xl mx-auto pb-20">
-              <section className="bg-gray-50 p-6 rounded-2xl border">
-                <h2 className="font-bold mb-4"><i className="fas fa-border-all mr-2"></i> 1. Pengaturan Header</h2>
-                <div className="space-y-4">
-                  <div><label className="text-sm block mb-1">Tinggi Area (%)</label><input type="range" min="15" max="40" value={settings.headerHeight} onChange={e => setSettings({...settings, headerHeight: Number(e.target.value)})} className="w-full" /></div>
-                  <div className="p-4 bg-white rounded-xl border">
-                    <label className="text-sm block mb-2"><i className="fas fa-image mr-2"></i>Latar Belakang Gambar</label>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm mb-4"/>
-                    {settings.headerBgImage && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div><label className="text-xs text-gray-500">Transparansi</label><input type="range" min="0" max="100" value={settings.headerBgOpacity} onChange={e => setSettings({...settings, headerBgOpacity: Number(e.target.value)})} className="w-full" /></div>
-                        <div><label className="text-xs text-gray-500">Posisi Vertikal</label><input type="range" min="0" max="100" value={settings.headerBgPositionY} onChange={e => setSettings({...settings, headerBgPositionY: Number(e.target.value)})} className="w-full" /></div>
-                        <div><label className="text-xs text-gray-500">Gradient Atas</label><input type="range" min="0" max="100" value={settings.headerGradientTop} onChange={e => setSettings({...settings, headerGradientTop: Number(e.target.value)})} className="w-full" /></div>
-                        <div><label className="text-xs text-gray-500">Gradient Bawah</label><input type="range" min="0" max="100" value={settings.headerGradientBottom} onChange={e => setSettings({...settings, headerGradientBottom: Number(e.target.value)})} className="w-full" /></div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 bg-white rounded-xl border space-y-4">
-                    <label className="text-sm"><i className="fas fa-font mr-2"></i>Teks Header</label>
-                    <div><label className="text-xs text-gray-500">Posisi Vertikal Teks</label><input type="range" min="0" max="100" value={settings.headerTextPositionY} onChange={e => setSettings({...settings, headerTextPositionY: Number(e.target.value)})} className="w-full" /></div>
-                    {[1, 2, 3].map(num => (
-                      <div key={num} className="flex gap-2">
-                        <input type="text" value={settings[`headerText${num}`]} onChange={e => setSettings({...settings, [`headerText${num}`]: e.target.value})} className="flex-1 border rounded px-2 py-1 text-sm"/>
-                        <input type="range" min="8" max="50" value={settings[`headerFontSize${num}`]} onChange={e => setSettings({...settings, [`headerFontSize${num}`]: Number(e.target.value)})} className="w-24" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              <section className="bg-gray-50 p-6 rounded-2xl border space-y-4">
-                <h2 className="font-bold"><i className="fas fa-image mr-2"></i> 2. Pengaturan Galeri</h2>
-                <div><label className="text-sm block mb-1">Durasi Tampil (Steady): {settings.slideDuration/1000}s</label><input type="range" min="1000" max="10000" step="500" value={settings.slideDuration} onChange={e => setSettings({...settings, slideDuration: Number(e.target.value)})} className="w-full" /></div>
-                <div><label className="text-sm block mb-1">Skala Foto: {settings.imageScale}%</label><input type="range" min="50" max="150" value={settings.imageScale} onChange={e => setSettings({...settings, imageScale: Number(e.target.value)})} className="w-full" /></div>
-              </section>
-
-              <section className="bg-gray-50 p-6 rounded-2xl border space-y-4">
-                <h2 className="font-bold"><i className="fas fa-font mr-2"></i> 3. Pengaturan Footer</h2>
-                <div><label className="text-xs text-gray-500">Posisi Vertikal</label><input type="range" min="0" max="100" value={settings.footerTextPositionY} onChange={e => setSettings({...settings, footerTextPositionY: Number(e.target.value)})} className="w-full" /></div>
-                {[1, 2].map(num => (
-                  <div key={num} className="flex gap-2">
-                    <input type="text" value={settings[`footerText${num}`]} onChange={e => setSettings({...settings, [`footerText${num}`]: e.target.value})} className="flex-1 border rounded px-2 py-1 text-sm"/>
-                    <input type="range" min="8" max="30" value={settings[`footerFontSize${num}`]} onChange={e => setSettings({...settings, [`footerFontSize${num}`]: Number(e.target.value)})} className="w-24" />
-                  </div>
-                ))}
-              </section>
-            </div>
+          <div className="counter" aria-live="off">
+            {n > 1 && (
+              <button type="button" aria-label="Foto sebelumnya" onClick={() => go(-1)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+              </button>
+            )}
+            <span>{pad2(index + 1)} / {pad2(n)}</span>
+            {n > 1 && (
+              <button type="button" aria-label="Foto berikutnya" onClick={() => go(1)}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+              </button>
+            )}
           </div>
+        </>
+      );
+    }
 
-          {showPassModal && (
-            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999]">
-              <div className="bg-white p-8 rounded-xl w-full max-w-sm">
-                <h3 className="font-bold mb-4 text-xl"><i className="fas fa-key mr-2"></i> Ubah Login</h3>
-                <input type="text" value={credentials.user} onChange={e => setCredentials({...credentials, user: e.target.value})} className="w-full border p-2 mb-2 rounded" placeholder="Username Baru" />
-                <input type="text" value={credentials.pass} onChange={e => setCredentials({...credentials, pass: e.target.value})} className="w-full border p-2 mb-4 rounded" placeholder="Password Baru" />
-                <div className="flex justify-end gap-2">
-                  <button onClick={() => setShowPassModal(false)} className="px-4 py-2 bg-gray-200 rounded">Batal</button>
-                  <button onClick={handleSaveCreds} className="px-4 py-2 bg-black text-white rounded">Simpan</button>
-                </div>
+    function Stage({ settings: s, images, onAdminTap }) {
+      const link = safeLink(s.footerLink);
+      return (
+        <div className="stage">
+          <header className="hd" style={{ height: s.headerHeight + '%' }}>
+            {s.headerBgImage && (
+              <div className="hd-bg">
+                <img src={s.headerBgImage} alt="" style={{ objectPosition: '50% ' + s.headerBgPositionY + '%', opacity: s.headerBgOpacity / 100 }} />
+                <div className="hd-fade" style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,' + (s.headerGradientTop / 100) + ') 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,' + (s.headerGradientBottom / 100) + ') 100%)' }} />
               </div>
+            )}
+            <div className="hd-text" style={{ transform: 'translateY(' + px(s.headerTextPositionY - 50) + ')' }}>
+              {s.headerText1 && <p className="t1" style={{ fontSize: px(s.headerFontSize1) }}>{s.headerText1}</p>}
+              {s.headerText2 && <h1 className="t2" style={{ fontSize: px(s.headerFontSize2) }}>{s.headerText2}</h1>}
+              {s.headerText3 && <p className="t3" style={{ fontSize: px(s.headerFontSize3) }}>{s.headerText3}</p>}
             </div>
-          )}
+          </header>
+          <main className="gl">
+            <Carousel images={images} imageScale={s.imageScale} slideDuration={s.slideDuration} />
+          </main>
+          <footer className="ft">
+            <div className="ft-in" style={{ transform: 'translateY(' + px(s.footerTextPositionY - 50) + ')' }}>
+              {s.footerText1 && (link
+                ? <a className="ft1" href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: px(s.footerFontSize1) }}>{s.footerText1}</a>
+                : <span className="ft1" style={{ fontSize: px(s.footerFontSize1) }}>{s.footerText1}</span>)}
+              {s.footerText2 && (onAdminTap
+                ? <button type="button" className="ft2" onClick={onAdminTap} style={{ fontSize: px(s.footerFontSize2) }}>{s.footerText2}</button>
+                : <span className="ft2" style={{ fontSize: px(s.footerFontSize2) }}>{s.footerText2}</span>)}
+            </div>
+          </footer>
         </div>
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    /* =====================================================================
+       Komponen admin
+       ===================================================================== */
+    function Modal({ title, onClose, children }) {
+      const ref = useRef(null);
+      const closeRef = useRef(onClose);
+      closeRef.current = onClose;
+      useEffect(() => {
+        const prev = document.activeElement;
+        const onKey = (e) => { if (e.key === 'Escape') closeRef.current(); };
+        document.addEventListener('keydown', onKey);
+        const first = ref.current && ref.current.querySelector('input, button');
+        if (first) first.focus();
+        return () => { document.removeEventListener('keydown', onKey); if (prev && prev.focus) prev.focus(); };
+      }, []);
+      return (
+        <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+          <div className="modal" role="dialog" aria-modal="true" aria-label={title} ref={ref}>{children}</div>
+        </div>
+      );
+    }
+
+    function LoginModal({ note, onClose, onSubmit }) {
+      const [user, setUser] = useState('');
+      const [pass, setPass] = useState('');
+      const [busy, setBusy] = useState(false);
+      const [err, setErr] = useState('');
+      const submit = async (e) => {
+        e.preventDefault();
+        if (busy) return;
+        setBusy(true); setErr('');
+        try { await onSubmit(user.trim(), pass); } catch (ex) { setErr(ex.message || 'Gagal masuk.'); setBusy(false); }
+      };
+      return (
+        <Modal title="Masuk admin" onClose={onClose}>
+          <form onSubmit={submit}>
+            <h2>Masuk admin</h2>
+            <p className="lead">{note || (API_READY ? 'Masukkan username dan password admin.' : 'Mode demo: isi apa saja untuk melihat dashboard.')}</p>
+            <label className="fl" htmlFor="lg-user">Username</label>
+            <input id="lg-user" className="field" type="text" autoComplete="username" autoCapitalize="none" spellCheck="false" required={API_READY} value={user} onChange={(e) => setUser(e.target.value)} />
+            <label className="fl" htmlFor="lg-pass">Password</label>
+            <input id="lg-pass" className="field" type="password" autoComplete="current-password" required={API_READY} value={pass} onChange={(e) => setPass(e.target.value)} />
+            {err && <p className="err" role="alert">{err}</p>}
+            <div className="actions">
+              <button type="button" className="btn" onClick={onClose}>Batal</button>
+              <button type="submit" className="btn primary" disabled={busy}>{busy ? 'Memeriksa...' : 'Masuk'}</button>
+            </div>
+          </form>
+        </Modal>
+      );
+    }
+
+    function AccountModal({ currentUser, onClose, onSubmit }) {
+      const [f, setF] = useState({ cur: '', user: currentUser || '', pass: '', pass2: '' });
+      const [show, setShow] = useState(false);
+      const [busy, setBusy] = useState(false);
+      const [err, setErr] = useState('');
+      const set = (k) => (e) => setF((p) => Object.assign({}, p, { [k]: e.target.value }));
+      const submit = async (e) => {
+        e.preventDefault();
+        if (busy) return;
+        const user = f.user.trim();
+        if (!f.cur) return setErr('Masukkan password saat ini.');
+        if (!/^[A-Za-z0-9._-]{3,32}$/.test(user)) return setErr('Username 3 sampai 32 karakter: huruf, angka, titik, strip, atau garis bawah.');
+        if (f.pass && f.pass.length < 8) return setErr('Password baru minimal 8 karakter.');
+        if (f.pass !== f.pass2) return setErr('Konfirmasi password baru tidak sama.');
+        if (user === currentUser && !f.pass) return setErr('Belum ada yang diubah. Ganti username atau isi password baru.');
+        setBusy(true); setErr('');
+        try { await onSubmit({ currentPass: f.cur, user, pass: f.pass }); } catch (ex) { setErr(ex.message || 'Gagal menyimpan akun.'); setBusy(false); }
+      };
+      const type = show ? 'text' : 'password';
+      return (
+        <Modal title="Ubah akun admin" onClose={onClose}>
+          <form onSubmit={submit}>
+            <h2>Ubah akun admin</h2>
+            <p className="lead">Perubahan langsung disimpan ke database Google.</p>
+            <label className="fl" htmlFor="ac-cur">Password saat ini</label>
+            <input id="ac-cur" className="field" type={type} autoComplete="current-password" value={f.cur} onChange={set('cur')} />
+            <label className="fl" htmlFor="ac-user">Username</label>
+            <input id="ac-user" className="field" type="text" autoComplete="username" autoCapitalize="none" spellCheck="false" value={f.user} onChange={set('user')} />
+            <label className="fl" htmlFor="ac-pass">Password baru</label>
+            <input id="ac-pass" className="field" type={type} autoComplete="new-password" placeholder="Kosongkan jika tidak diganti" value={f.pass} onChange={set('pass')} />
+            <label className="fl" htmlFor="ac-pass2">Ulangi password baru</label>
+            <input id="ac-pass2" className="field" type={type} autoComplete="new-password" value={f.pass2} onChange={set('pass2')} />
+            <label className="show"><input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Tampilkan password</label>
+            {err && <p className="err" role="alert">{err}</p>}
+            <div className="actions">
+              <button type="button" className="btn" onClick={onClose}>Batal</button>
+              <button type="submit" className="btn primary" disabled={busy}>{busy ? 'Menyimpan...' : 'Simpan akun'}</button>
+            </div>
+          </form>
+        </Modal>
+      );
+    }
+
+    function Range({ label, value, min, max, step, unit, onChange, fmt }) {
+      const id = useId();
+      return (
+        <div className="row">
+          <div className="row-h"><label htmlFor={id}>{label}</label><output htmlFor={id}>{fmt ? fmt(value) : value + (unit || '')}</output></div>
+          <input id={id} type="range" min={min} max={max} step={step || 1} value={value} onChange={(e) => onChange(Number(e.target.value))} />
+        </div>
+      );
+    }
+
+    function TextRow({ label, value, onText, size, onSize, sizeMin, sizeMax, placeholder, hint }) {
+      const id = useId();
+      const sid = useId();
+      return (
+        <div className="txt">
+          <label htmlFor={id}>{label}</label>
+          <div className="txt-in" style={onSize ? undefined : { gridTemplateColumns: 'minmax(0, 1fr)' }}>
+            <input id={id} className="field" type="text" value={value} placeholder={placeholder} onChange={(e) => onText(e.target.value)} />
+            {onSize && (
+              <div className="size">
+                <input id={sid} type="range" aria-label={label + ' (ukuran huruf)'} min={sizeMin} max={sizeMax} value={size} onChange={(e) => onSize(Number(e.target.value))} />
+                <span>{size}px</span>
+              </div>
+            )}
+          </div>
+          {hint && <p className="hint">{hint}</p>}
+        </div>
+      );
+    }
+
+    /* =====================================================================
+       Aplikasi
+       ===================================================================== */
+    class ErrorBoundary extends React.Component {
+      constructor(props) { super(props); this.state = { failed: false }; }
+      static getDerivedStateFromError() { return { failed: true }; }
+      componentDidCatch(err) { console.error(err); }
+      render() {
+        return this.state.failed
+          ? <div className="boot">Terjadi kesalahan pada halaman.<br />Muat ulang untuk mencoba lagi.</div>
+          : this.props.children;
+      }
+    }
+
+    function readCache() {
+      const raw = store.get('av_cache_v2');
+      if (!raw) return null;
+      try { return JSON.parse(raw); } catch (e) { return null; }
+    }
+
+    function App() {
+      const cached = useMemo(() => (API_READY ? readCache() : null), []);
+      const [settings, setSettings] = useState(() => normalizeSettings(cached && cached.settings));
+      const [savedJson, setSavedJson] = useState(() => JSON.stringify(normalizeSettings(cached && cached.settings)));
+      const [images, setImages] = useState(() => (API_READY ? normalizeImages(cached && cached.images) : demoImages()));
+      const [loading, setLoading] = useState(API_READY && !cached);
+      const [offline, setOffline] = useState(false);
+
+      const [token, setToken] = useState(() => store.get('av_token', true));
+      const [isAdmin, setIsAdmin] = useState(() => (API_READY ? !!store.get('av_token', true) : false));
+      const [adminUser, setAdminUser] = useState(() => store.get('av_user', true) || '');
+      const [showLogin, setShowLogin] = useState(false);
+      const [loginNote, setLoginNote] = useState('');
+      const [showAccount, setShowAccount] = useState(false);
+      const [tab, setTab] = useState('settings');
+      const [saving, setSaving] = useState(false);
+      const [toast, setToast] = useState(null);
+
+      const dirty = JSON.stringify(settings) !== savedJson;
+      const dirtyRef = useRef(false);
+      dirtyRef.current = dirty;
+      const tokenRef = useRef(token);
+      tokenRef.current = token;
+
+      useEffect(() => { window.__avMounted = true; }, []);
+
+      const notify = (msg, kind) => setToast({ msg, kind: kind || 'ok', id: Date.now() });
+      useEffect(() => {
+        if (!toast) return undefined;
+        const t = setTimeout(() => setToast(null), 4500);
+        return () => clearTimeout(t);
+      }, [toast]);
+
+      // Ambil data publik (pengaturan + foto). Akun admin tidak pernah dikirim ke browser.
+      useEffect(() => {
+        if (!API_READY) return undefined;
+        let dead = false;
+        apiLoad().then((d) => {
+          if (dead) return;
+          const st = normalizeSettings(d.settings);
+          const im = normalizeImages(d.images);
+          if (!dirtyRef.current) { setSettings(st); setSavedJson(JSON.stringify(st)); }
+          setImages(im);
+          setOffline(false); setLoading(false);
+          store.set('av_cache_v2', JSON.stringify({ settings: st, images: d.images }));
+        }).catch((err) => {
+          if (dead) return;
+          setLoading(false); setOffline(true);
+          notify('Gagal memuat data: ' + err.message, 'error');
+        });
+        return () => { dead = true; };
+      }, []);
+
+      // Buka form masuk lewat alamat #admin
+      useEffect(() => {
+        const check = () => { if (window.location.hash === '#admin') setShowLogin(true); };
+        check();
+        window.addEventListener('hashchange', check);
+        return () => window.removeEventListener('hashchange', check);
+      }, []);
+
+      useEffect(() => {
+        const warn = (e) => { if (dirtyRef.current) { e.preventDefault(); e.returnValue = ''; } };
+        window.addEventListener('beforeunload', warn);
+        return () => window.removeEventListener('beforeunload', warn);
+      }, []);
+
+      const set = (k, v) => setSettings((s) => Object.assign({}, s, { [k]: v }));
+
+      const expireSession = () => {
+        setToken(null); store.del('av_token', true);
+        setLoginNote('Sesi berakhir. Masuk lagi untuk melanjutkan, perubahan Anda belum hilang.');
+        setShowLogin(true);
+      };
+      const handleApiError = (err, prefix) => {
+        if (err.code === 'AUTH') { expireSession(); return; }
+        notify((prefix ? prefix + ': ' : '') + err.message, 'error');
+      };
+      const authPost = (payload) => apiPost(Object.assign({ token: tokenRef.current }, payload));
+
+      const login = async (user, pass) => {
+        if (!API_READY) { setAdminUser(user || 'demo'); setIsAdmin(true); setShowLogin(false); setLoginNote(''); return; }
+        const r = await apiPost({ action: 'login', user, pass });
+        setToken(r.token); store.set('av_token', r.token, true);
+        setAdminUser(r.user || user); store.set('av_user', r.user || user, true);
+        setIsAdmin(true); setShowLogin(false); setLoginNote('');
+        if (window.location.hash === '#admin') { try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch (e) { /* diabaikan */ } }
+      };
+
+      const logout = () => {
+        if (dirty && !window.confirm('Ada perubahan yang belum disimpan. Keluar dan buang perubahan?')) return;
+        if (API_READY && tokenRef.current) apiPost({ action: 'logout', token: tokenRef.current }).catch(() => {});
+        setSettings(normalizeSettings(JSON.parse(savedJson)));
+        setIsAdmin(false); setToken(null); setTab('settings');
+        store.del('av_token', true); store.del('av_user', true);
+      };
+
+      const saveAll = async () => {
+        if (saving) return;
+        if (!API_READY) { notify('Mode demo: isi API_URL dengan link Apps Script agar perubahan tersimpan.', 'warn'); return; }
+        setSaving(true);
+        try {
+          const next = Object.assign({}, settings);
+          if (next.headerBgImage.indexOf('data:') === 0) {
+            const up = await authPost({ action: 'uploadHeader', data: next.headerBgImage });
+            next.headerBgImage = up.url;
+          }
+          const r = await authPost({ action: 'saveSettings', settings: next });
+          const stored = normalizeSettings(r.settings); // data yang benar-benar tersimpan di database
+          setSettings(stored); setSavedJson(JSON.stringify(stored));
+          store.set('av_cache_v2', JSON.stringify({ settings: stored, images: images }));
+          notify('Pengaturan tersimpan.');
+        } catch (err) { handleApiError(err, 'Gagal menyimpan'); } finally { setSaving(false); }
+      };
+
+      const saveAccount = async ({ currentPass, user, pass }) => {
+        if (!API_READY) throw new Error('Mode demo: akun tidak dapat diubah sebelum Apps Script terhubung.');
+        let r;
+        try { r = await authPost({ action: 'saveCreds', currentPass, user, pass: pass || undefined }); } catch (err) {
+          if (err.code === 'AUTH') { setShowAccount(false); expireSession(); return; }
+          throw err;
+        }
+        setAdminUser(r.user); store.set('av_user', r.user, true);
+        if (r.token) { setToken(r.token); store.set('av_token', r.token, true); }
+        setShowAccount(false);
+        notify('Akun diperbarui dan tersimpan. Gunakan data baru saat masuk berikutnya.');
+      };
+
+      const pickImage = async (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        if (!file) return;
+        if (!/^image\//.test(file.type)) { notify('File harus berupa gambar.', 'error'); return; }
+        if (file.size > 15 * 1024 * 1024) { notify('Ukuran gambar maksimal 15 MB.', 'error'); return; }
+        try {
+          const data = await compressImage(file, 1600, 0.82);
+          set('headerBgImage', data);
+          notify(API_READY ? 'Gambar dipilih. Klik Simpan perubahan untuk mengunggah.' : 'Gambar dipilih (mode demo, tidak akan tersimpan).');
+        } catch (err) { notify('Gambar tidak bisa dibaca. Coba file lain.', 'error'); }
+      };
+
+      if (loading) return <div className="boot">MEMUAT</div>;
+
+      const modals = (
+        <>
+          {showLogin && <LoginModal note={loginNote} onClose={() => { setShowLogin(false); setLoginNote(''); }} onSubmit={login} />}
+          {showAccount && <AccountModal currentUser={adminUser} onClose={() => setShowAccount(false)} onSubmit={saveAccount} />}
+          {toast && <div key={toast.id} className={'toast ' + toast.kind} role="status" aria-live="polite">{toast.msg}</div>}
+        </>
+      );
+
+      /* ----- Halaman tamu ----- */
+      if (!isAdmin) {
+        return (
+          <div className="page">
+            <div className="frame frame-live"><Stage settings={settings} images={images} onAdminTap={() => setShowLogin(true)} /></div>
+            {modals}
+          </div>
+        );
+      }
+
+      /* ----- Dashboard admin ----- */
+      const hasImg = !!settings.headerBgImage;
+      return (
+        <div className="admin" data-tab={tab}>
+          <div className="bar">
+            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+              <h1>Dashboard</h1>
+              <span className={'status' + (dirty ? ' dirty' : '')} role="status"><i></i>{dirty ? 'Belum disimpan' : 'Semua perubahan tersimpan'}</span>
+            </div>
+            <div className="bar-actions">
+              <button type="button" className="btn quiet" onClick={logout}>Keluar</button>
+              <button type="button" className="btn" onClick={() => setShowAccount(true)}>Akun</button>
+              <button type="button" className="btn primary" onClick={saveAll} disabled={saving || !dirty}>{saving ? 'Menyimpan...' : 'Simpan perubahan'}</button>
+            </div>
+            <div className="tabs" role="tablist">
+              <button type="button" role="tab" aria-selected={tab === 'settings'} onClick={() => setTab('settings')}>Pengaturan</button>
+              <button type="button" role="tab" aria-selected={tab === 'preview'} onClick={() => setTab('preview')}>Pratinjau</button>
+            </div>
+          </div>
+
+          <div className="prev">
+            <div className="frame frame-prev"><Stage settings={settings} images={images} /></div>
+          </div>
+
+          <div className="panel">
+            {!API_READY && <p className="note">Mode demo: Apps Script belum terhubung, jadi perubahan tidak tersimpan. Isi <b>API_URL</b> di bagian atas kode dengan link /exec dari Apps Script.</p>}
+            {API_READY && offline && <p className="note">Tidak bisa terhubung ke database. Perubahan baru bisa disimpan setelah koneksi kembali.</p>}
+
+            <section className="sec">
+              <h2>Header</h2>
+              <Range label="Tinggi area" value={settings.headerHeight} min={15} max={40} unit="%" onChange={(v) => set('headerHeight', v)} />
+
+              <h3 className="sub-h">Gambar latar</h3>
+              <div className="file">
+                <label className="btn">
+                  {hasImg ? 'Ganti gambar' : 'Pilih gambar'}
+                  <input type="file" accept="image/*" onChange={pickImage} />
+                </label>
+                {hasImg && <button type="button" className="btn quiet" onClick={() => set('headerBgImage', '')}>Hapus gambar</button>}
+              </div>
+              {hasImg && (
+                <>
+                  <Range label="Transparansi gambar" value={settings.headerBgOpacity} min={0} max={100} unit="%" onChange={(v) => set('headerBgOpacity', v)} />
+                  <Range label="Posisi vertikal gambar" value={settings.headerBgPositionY} min={0} max={100} unit="%" onChange={(v) => set('headerBgPositionY', v)} />
+                  <Range label="Gradasi atas" value={settings.headerGradientTop} min={0} max={100} unit="%" onChange={(v) => set('headerGradientTop', v)} />
+                  <Range label="Gradasi bawah" value={settings.headerGradientBottom} min={0} max={100} unit="%" onChange={(v) => set('headerGradientBottom', v)} />
+                </>
+              )}
+
+              <h3 className="sub-h">Teks</h3>
+              <Range label="Posisi vertikal teks" value={settings.headerTextPositionY} min={0} max={100} onChange={(v) => set('headerTextPositionY', v)} fmt={(v) => (v === 50 ? 'tengah' : v < 50 ? 'naik ' + (50 - v) : 'turun ' + (v - 50))} />
+              <TextRow label="Teks kecil di atas" value={settings.headerText1} onText={(v) => set('headerText1', v)} size={settings.headerFontSize1} onSize={(v) => set('headerFontSize1', v)} sizeMin={8} sizeMax={50} />
+              <TextRow label="Nama" value={settings.headerText2} onText={(v) => set('headerText2', v)} size={settings.headerFontSize2} onSize={(v) => set('headerFontSize2', v)} sizeMin={8} sizeMax={50} />
+              <TextRow label="Slogan" value={settings.headerText3} onText={(v) => set('headerText3', v)} size={settings.headerFontSize3} onSize={(v) => set('headerFontSize3', v)} sizeMin={8} sizeMax={50} />
+            </section>
+
+            <section className="sec">
+              <h2>Galeri</h2>
+              <Range label="Lama tiap foto" value={settings.slideDuration} min={1000} max={10000} step={500} onChange={(v) => set('slideDuration', v)} fmt={(v) => v / 1000 + ' detik'} />
+              <Range label="Skala foto" value={settings.imageScale} min={50} max={150} unit="%" onChange={(v) => set('imageScale', v)} />
+              <p className="hint">{images.length} foto{API_READY ? ' dibaca dari folder Google Drive.' : ' contoh (mode demo).'}</p>
+            </section>
+
+            <section className="sec">
+              <h2>Footer</h2>
+              <Range label="Posisi vertikal teks" value={settings.footerTextPositionY} min={0} max={100} onChange={(v) => set('footerTextPositionY', v)} fmt={(v) => (v === 50 ? 'tengah' : v < 50 ? 'naik ' + (50 - v) : 'turun ' + (v - 50))} />
+              <TextRow label="Teks tombol" value={settings.footerText1} onText={(v) => set('footerText1', v)} size={settings.footerFontSize1} onSize={(v) => set('footerFontSize1', v)} sizeMin={8} sizeMax={30} />
+              <TextRow label="Tautan tombol" value={settings.footerLink} onText={(v) => set('footerLink', v)} placeholder="instagram.com/akun atau nama@email.com"
+                hint={settings.footerLink && !safeLink(settings.footerLink) ? 'Tautan ini tidak dikenali, tombol tidak akan bisa diklik.' : 'Kosongkan jika tombol hanya berupa teks.'} />
+              <TextRow label="Teks hak cipta" value={settings.footerText2} onText={(v) => set('footerText2', v)} size={settings.footerFontSize2} onSize={(v) => set('footerFontSize2', v)} sizeMin={8} sizeMax={30}
+                hint="Mengetuk teks ini di halaman publik membuka form masuk admin. Alamat /#admin juga bisa dipakai." />
+            </section>
+          </div>
+          {modals}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<ErrorBoundary><App /></ErrorBoundary>);
   </script>
 </body>
 </html>
