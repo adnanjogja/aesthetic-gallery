@@ -20,6 +20,8 @@
       --ink: #f2f2f2; --mute: #9a9a9a;
       --text: #161616; --sub: #6b6b6b; --rule: #e4e4e4; --field: #cfcfcf; --bg: #f4f4f4;
       --ok: #1a7f4b; --warn: #a15c00; --err: #b3261e;
+      --surface: #fff; --fbg: #fff; --hover: #f6f6f6; --accent: #000; --on-accent: #fff; --accent-hover: #222; --disabled: #c9c9c9; --disabled-fg: #fff;
+      --note-bg: #fff6e5; --note-fg: #6b4300; --err-fg: #b3261e; --prev-bg: #e8e8e8; --frame-line: #000;
     }
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; }
@@ -33,10 +35,11 @@
     /* ---------- Halaman tamu ---------- */
     .page { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; background: #000; }
     .frame { position: relative; background: #000; overflow: hidden; container-type: inline-size; }
-    .frame-live { width: 100%; height: 100vh; height: 100svh; }
+    /* Bingkai selalu portrait 9:16 di semua layar (desktop, ponsel tegak, ponsel mendatar); isinya ikut membesar/mengecil. */
+    .frame-live { width: min(100vw, calc(100vh * 9 / 16)); width: min(100vw, calc(100svh * 9 / 16)); aspect-ratio: 9 / 16; }
     @media (min-width: 640px) {
       .page { padding: 24px; }
-      .frame-live { width: auto; height: min(900px, calc(100vh - 48px)); height: min(900px, calc(100svh - 48px)); aspect-ratio: 9 / 16; border-radius: 28px; border: 1px solid #2a2a2a; }
+      .frame-live { width: min(calc(100vw - 48px), calc(min(900px, 100vh - 48px) * 9 / 16)); width: min(calc(100vw - 48px), calc(min(900px, 100svh - 48px) * 9 / 16)); border-radius: 28px; border: 1px solid #2a2a2a; }
     }
 
     /* ---------- Panggung (dipakai halaman tamu dan pratinjau admin) ---------- */
@@ -54,9 +57,9 @@
     .slides { position: relative; flex: 1; min-height: 0; perspective: calc(var(--px) * 1000); touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
     .slides.dragging { cursor: grabbing; }
     .slides:focus-visible { outline-offset: -3px; }
-    .slide { position: absolute; left: 50%; top: 50%; width: calc(var(--px) * 272); aspect-ratio: 4 / 5; border-radius: 2px; overflow: hidden; background: #161616; will-change: transform, opacity;
+    .slide { position: absolute; left: 50%; top: 50%; will-change: transform, opacity;
              transition: transform .8s cubic-bezier(.25, .1, .25, 1), opacity .8s cubic-bezier(.25, .1, .25, 1); }
-    .slide img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .slide img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
     .counter { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 16); padding: calc(var(--px) * 4) 0 calc(var(--px) * 12); font-size: calc(var(--px) * 12); letter-spacing: .2em; color: var(--mute); font-variant-numeric: tabular-nums; }
     .counter button { width: calc(var(--px) * 30); height: calc(var(--px) * 30); display: grid; place-items: center; border-radius: 50%; color: var(--mute); }
     .counter button:hover { color: #fff; }
@@ -76,7 +79,7 @@
 
     /* ---------- Modal & toast ---------- */
     .scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, .72); display: grid; place-items: center; padding: 16px; z-index: 50; }
-    .modal { width: 100%; max-width: 380px; background: #fff; color: var(--text); border-radius: 14px; padding: 28px; }
+    .modal { width: 100%; max-width: 380px; background: var(--surface); color: var(--text); border-radius: 14px; padding: 28px; }
     .modal h2 { margin: 0 0 4px; font-size: 20px; font-weight: 500; }
     .modal p.lead { margin: 0 0 20px; color: var(--sub); font-size: 14px; line-height: 1.5; }
     .modal .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
@@ -85,8 +88,12 @@
     .toast.warn { background: var(--warn); }
 
     /* ---------- Admin ---------- */
-    .admin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 600px); grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100svh; background: var(--bg); color: var(--text); }
-    .bar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 28px; background: #fff; border-bottom: 1px solid var(--rule); }
+    .admin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 600px); grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100svh; min-width: 1024px; background: var(--bg); color: var(--text); color-scheme: dark;
+             --text: #ececec; --sub: #9a9a9a; --rule: #2c2c2c; --field: #3a3a3a; --bg: #0a0a0a; --ok: #3ecf8e;
+             --surface: #141414; --fbg: #0a0a0a; --hover: #202020; --accent: #f2f2f2; --on-accent: #000; --accent-hover: #d4d4d4; --disabled: #2e2e2e; --disabled-fg: #777;
+             --note-bg: #2a2111; --note-fg: #f0c987; --err-fg: #ff7b72; --prev-bg: #050505; --frame-line: #2a2a2a; }
+    .admin .toast { border: 1px solid #3a3a3a; }
+    .bar { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 28px; background: var(--surface); border-bottom: 1px solid var(--rule); }
     .bar h1 { margin: 0; font-size: 18px; font-weight: 500; }
     .status { display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; font-size: 13px; color: var(--sub); }
     .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
@@ -95,51 +102,39 @@
     .tabs { display: none; width: 100%; gap: 4px; }
     .tabs button { flex: 1; height: 38px; border-radius: 8px; font-size: 14px; color: var(--sub); border: 1px solid var(--rule); background: #fff; }
     .tabs button[aria-selected="true"] { background: #000; color: #fff; border-color: #000; }
-    .prev { display: flex; align-items: center; justify-content: center; padding: 32px; min-width: 0; min-height: 0; background: #e8e8e8; container-type: size; }
-    .frame-prev { width: min(100cqw, calc(100cqh * 9 / 16)); height: auto; aspect-ratio: 9 / 16; border-radius: 34px; border: 6px solid #000; }
-    .panel { overflow-y: auto; background: #fff; border-left: 1px solid var(--rule); min-height: 0; }
-    .note { margin: 20px 28px 0; padding: 12px 14px; border-radius: 8px; background: #fff6e5; color: #6b4300; font-size: 14px; line-height: 1.5; }
+    .prev { display: flex; align-items: center; justify-content: center; padding: 32px; min-width: 0; min-height: 0; background: var(--prev-bg); container-type: size; }
+    .frame-prev { width: min(100cqw, calc(100cqh * 9 / 16)); height: auto; aspect-ratio: 9 / 16; border-radius: 34px; border: 6px solid var(--frame-line); }
+    .panel { overflow-y: auto; background: var(--surface); border-left: 1px solid var(--rule); min-height: 0; }
+    .note { margin: 20px 28px 0; padding: 12px 14px; border-radius: 8px; background: var(--note-bg); color: var(--note-fg); font-size: 14px; line-height: 1.5; }
     .sec { padding: 26px 28px; border-bottom: 1px solid var(--rule); }
     .sec:last-child { border-bottom: 0; padding-bottom: 80px; }
     .sec h2 { margin: 0 0 18px; font-size: 15px; font-weight: 500; }
     .row { margin-bottom: 18px; }
     .row-h { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-bottom: 6px; }
     .row-h output { color: var(--sub); font-variant-numeric: tabular-nums; }
-    input[type=range] { width: 100%; height: 22px; margin: 0; accent-color: #000; }
+    input[type=range] { width: 100%; height: 22px; margin: 0; accent-color: var(--accent); }
     .txt { margin-bottom: 16px; }
     .txt > label { display: block; font-size: 14px; margin-bottom: 6px; }
     .txt-in { display: grid; grid-template-columns: minmax(0, 1fr) 130px; gap: 12px; align-items: center; }
     .size { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 6px; align-items: center; font-size: 13px; color: var(--sub); text-align: right; }
     .hint { margin: 6px 0 0; font-size: 13px; color: var(--sub); line-height: 1.4; }
-    .field { display: block; width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--field); border-radius: 8px; background: #fff; font-size: 15px; color: var(--text); }
-    .field:focus-visible { outline: 2px solid #000; outline-offset: 1px; border-color: #000; }
+    .field { display: block; width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--field); border-radius: 8px; background: var(--fbg); font-size: 15px; color: var(--text); }
+    .field:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
     .fl { display: block; font-size: 14px; margin: 14px 0 6px; }
     .fl:first-of-type { margin-top: 0; }
-    .err { margin: 12px 0 0; color: var(--err); font-size: 14px; line-height: 1.4; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--field); background: #fff; color: var(--text); font-size: 14px; white-space: nowrap; }
-    .btn:hover { background: #f6f6f6; }
-    .btn.primary { background: #000; border-color: #000; color: #fff; }
-    .btn.primary:hover { background: #222; }
-    .btn.primary:disabled { background: #c9c9c9; border-color: #c9c9c9; cursor: not-allowed; }
+    .err { margin: 12px 0 0; color: var(--err-fg); font-size: 14px; line-height: 1.4; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--field); background: var(--surface); color: var(--text); font-size: 14px; white-space: nowrap; }
+    .btn:hover { background: var(--hover); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .btn.primary:hover { background: var(--accent-hover); }
+    .btn.primary:disabled { background: var(--disabled); border-color: var(--disabled); color: var(--disabled-fg); cursor: not-allowed; }
     .btn.quiet { border-color: transparent; background: transparent; }
-    .btn.quiet:hover { background: #f1f1f1; }
+    .btn.quiet:hover { background: var(--hover); }
     .file { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
     .file input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-    .file label.btn:focus-within { outline: 2px solid #000; outline-offset: 2px; }
+    .file label.btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
     .sub-h { margin: 22px 0 12px; font-size: 14px; font-weight: 500; }
     .show { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--sub); }
-
-    @media (max-width: 1023px) {
-      .admin { display: flex; flex-direction: column; }
-      .bar { padding: 12px 16px; }
-      .tabs { display: flex; }
-      .admin[data-tab="settings"] .prev { display: none; }
-      .admin[data-tab="preview"] .panel { display: none; }
-      .prev { flex: 1; padding: 16px; }
-      .panel { flex: 1; border-left: 0; }
-      .sec { padding: 22px 16px; }
-      .note { margin: 16px 16px 0; }
-    }
   </style>
 </head>
 <body>
@@ -339,12 +334,15 @@
         if (rel > n / 2) rel -= n;
         if (Math.abs(rel) > 2) continue;
         const a = Math.abs(rel);
-        const s = (a === 0 ? 1 : a === 1 ? 0.85 : 0.7) * scale;
+        const s = a === 0 ? 1 : a === 1 ? 0.85 : 0.7;
         const tilt = Math.max(-1, Math.min(1, rel)) * -25;
         slides.push(
           <div key={images[i].id + '-' + i} className="slide" data-rel={rel} aria-hidden={rel !== 0}
             style={{
               transform: 'translate(-50%, -50%) translate3d(' + px(rel * 190 + drag) + ', 0, 0) scale(' + s + ') rotateY(' + tilt + 'deg)',
+              // Kotak foto = batas maksimal (lebar sampai margin teks 24, tinggi sampai batas area galeri); foto tampil utuh di dalamnya sesuai rasio aslinya.
+              width: 'min(' + px(352) + ', ' + px(272 * scale) + ')',
+              height: 'min(calc(100% - ' + px(16) + '), ' + px(340 * scale) + ')',
               opacity: a === 0 ? 1 : a === 1 ? 0.4 : 0,
               zIndex: 10 - a,
               pointerEvents: a <= 1 ? 'auto' : 'none',
@@ -591,6 +589,12 @@
       tokenRef.current = token;
 
       useEffect(() => { window.__avMounted = true; }, []);
+
+      // Dasbor admin selalu memakai tata letak desktop (lebar 1280) walau dibuka di ponsel; halaman tamu tetap mengikuti lebar perangkat.
+      useEffect(() => {
+        const m = document.querySelector('meta[name="viewport"]');
+        if (m) m.setAttribute('content', isAdmin ? 'width=1280, viewport-fit=cover' : 'width=device-width, initial-scale=1.0, viewport-fit=cover');
+      }, [isAdmin]);
 
       const notify = (msg, kind) => setToast({ msg, kind: kind || 'ok', id: Date.now() });
       useEffect(() => {
