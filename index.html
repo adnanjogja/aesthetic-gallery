@@ -59,7 +59,7 @@
     .slides:focus-visible { outline-offset: -3px; }
     .slide { position: absolute; left: 50%; top: 50%; will-change: transform, opacity;
              transition: transform .8s cubic-bezier(.25, .1, .25, 1), opacity .8s cubic-bezier(.25, .1, .25, 1); }
-    .slide img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; }
+    .slide img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: 100%; max-height: 100%; display: block; pointer-events: none; }
     .counter { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 16); padding: calc(var(--px) * 4) 0 calc(var(--px) * 12); font-size: calc(var(--px) * 12); letter-spacing: .2em; color: var(--mute); font-variant-numeric: tabular-nums; }
     .counter button { width: calc(var(--px) * 30); height: calc(var(--px) * 30); display: grid; place-items: center; border-radius: 50%; color: var(--mute); }
     .counter button:hover { color: #fff; }
@@ -102,9 +102,9 @@
     .tabs { display: none; width: 100%; gap: 4px; }
     .tabs button { flex: 1; height: 38px; border-radius: 8px; font-size: 14px; color: var(--sub); border: 1px solid var(--rule); background: #fff; }
     .tabs button[aria-selected="true"] { background: #000; color: #fff; border-color: #000; }
-    .prev { display: flex; align-items: center; justify-content: center; padding: 32px; min-width: 0; min-height: 0; background: var(--prev-bg); container-type: size; }
+    .prev { display: flex; align-items: flex-start; justify-content: center; padding: 32px; min-width: 0; min-height: 0; overflow: hidden; background: var(--prev-bg); container-type: size; }
     .frame-prev { width: min(100cqw, calc(100cqh * 9 / 16)); height: auto; aspect-ratio: 9 / 16; border-radius: 34px; border: 6px solid var(--frame-line); }
-    .panel { overflow-y: auto; background: var(--surface); border-left: 1px solid var(--rule); min-height: 0; }
+    .panel { overflow-y: auto; overscroll-behavior: contain; background: var(--surface); border-left: 1px solid var(--rule); min-height: 0; }
     .note { margin: 20px 28px 0; padding: 12px 14px; border-radius: 8px; background: var(--note-bg); color: var(--note-fg); font-size: 14px; line-height: 1.5; }
     .sec { padding: 26px 28px; border-bottom: 1px solid var(--rule); }
     .sec:last-child { border-bottom: 0; padding-bottom: 80px; }
@@ -156,7 +156,8 @@
     /* =====================================================================
        KONFIGURASI: tempel link /exec dari Google Apps Script (Deploy > Web app)
        ===================================================================== */
-    const API_URL = "https://script.google.com/macros/s/AKfycbwDJK-FE2CgErBy22aEZaUpnDyK0uoYQwLalU9mTYlvpK15Ify35LG21XX_HDvz6L2Z/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwDJK-FE2CgErBy22aEZaUpnDyK0uoYQwLalU9mTYlvpK15Ify35LG21XX_HDvz6L2Z/exec
+";
     /* ===================================================================== */
 
     const API_READY = /^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(API_URL);
@@ -168,13 +169,13 @@
       headerFontSize1: 12, headerFontSize2: 26, headerFontSize3: 14, headerTextPositionY: 50,
       footerText1: 'SUBSCRIBE TO NEWSLETTER', footerLink: '', footerText2: '© 2026 HAK CIPTA DILINDUNGI',
       footerFontSize1: 12, footerFontSize2: 10, footerTextPositionY: 50,
-      slideDuration: 4000, imageScale: 100,
+      slideDuration: 4000, imageScale: 100, imageRadius: 20,
     };
     const RANGES = {
       headerHeight: [15, 40], headerBgOpacity: [0, 100], headerGradientTop: [0, 100], headerGradientBottom: [0, 100], headerBgPositionY: [0, 100],
       headerFontSize1: [8, 50], headerFontSize2: [8, 50], headerFontSize3: [8, 50], headerTextPositionY: [0, 100],
       footerFontSize1: [8, 30], footerFontSize2: [8, 30], footerTextPositionY: [0, 100],
-      slideDuration: [1000, 10000], imageScale: [50, 150],
+      slideDuration: [1000, 10000], imageScale: [50, 150], imageRadius: [0, 60],
     };
     const TEXT_KEYS = ['headerBgImage', 'headerText1', 'headerText2', 'headerText3', 'footerText1', 'footerLink', 'footerText2'];
 
@@ -230,7 +231,7 @@
     function demoImages() {
       const tones = [['#3a3a3a', '#8c8c8c'], ['#2b2f33', '#9aa3ab'], ['#4a4540', '#b5aca1'], ['#262626', '#6f6f6f'], ['#35393c', '#a7aeb3'], ['#41403d', '#9c9a94']];
       return tones.map((t, i) => {
-        const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + t[0] + '"/><stop offset="1" stop-color="' + t[1] + '"/></linearGradient></defs><rect width="400" height="500" fill="url(#g)"/><rect y="' + (300 + i * 8) + '" width="400" height="200" fill="#000" opacity=".35"/><circle cx="' + (120 + i * 35) + '" cy="' + (170 - i * 6) + '" r="46" fill="#fff" opacity=".18"/></svg>';
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + t[0] + '"/><stop offset="1" stop-color="' + t[1] + '"/></linearGradient></defs><rect width="400" height="500" fill="url(#g)"/><rect y="' + (300 + i * 8) + '" width="400" height="200" fill="#000" opacity=".35"/><circle cx="' + (120 + i * 35) + '" cy="' + (170 - i * 6) + '" r="46" fill="#fff" opacity=".18"/></svg>';
         return { id: 'demo' + i, url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg), name: 'Contoh foto ' + (i + 1) };
       });
     }
@@ -289,7 +290,7 @@
     const px = (n) => 'calc(var(--px) * ' + n + ')';
     const pad2 = (n) => String(n).padStart(2, '0');
 
-    function Carousel({ images, slideDuration, imageScale }) {
+    function Carousel({ images, slideDuration, imageScale, imageRadius }) {
       const n = images.length;
       const [index, setIndex] = useState(0);
       const [drag, setDrag] = useState(0);
@@ -349,7 +350,7 @@
               transition: dragging ? 'none' : undefined,
             }}>
             {!broken[i] && (
-              <img src={images[i].url} alt={images[i].name || ('Foto ' + (i + 1))} draggable={false}
+              <img src={images[i].url} alt={images[i].name || ('Foto ' + (i + 1))} draggable={false} style={{ borderRadius: px(imageRadius) }}
                 onError={() => setBroken((b) => Object.assign({}, b, { [i]: true }))} />
             )}
           </div>
@@ -403,7 +404,7 @@
             </div>
           </header>
           <main className="gl">
-            <Carousel images={images} imageScale={s.imageScale} slideDuration={s.slideDuration} />
+            <Carousel images={images} imageScale={s.imageScale} imageRadius={s.imageRadius} slideDuration={s.slideDuration} />
           </main>
           <footer className="ft">
             <div className="ft-in" style={{ transform: 'translateY(' + px(s.footerTextPositionY - 50) + ')' }}>
@@ -791,6 +792,7 @@
               <h2>Galeri</h2>
               <Range label="Lama tiap foto" value={settings.slideDuration} min={1000} max={10000} step={500} onChange={(v) => set('slideDuration', v)} fmt={(v) => v / 1000 + ' detik'} />
               <Range label="Skala foto" value={settings.imageScale} min={50} max={150} unit="%" onChange={(v) => set('imageScale', v)} />
+              <Range label="Sudut foto (rounded)" value={settings.imageRadius} min={0} max={60} unit="px" onChange={(v) => set('imageRadius', v)} />
               <p className="hint">{images.length} foto{API_READY ? ' dibaca dari folder Google Drive.' : ' contoh (mode demo).'}</p>
             </section>
 
