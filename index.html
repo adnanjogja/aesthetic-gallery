@@ -41,7 +41,7 @@
       .frame-live { width: min(calc(100vw - 48px), calc(min(900px, 100vh - 48px) * 9 / 16)); width: min(calc(100vw - 48px), calc(min(900px, 100svh - 48px) * 9 / 16)); border-radius: 28px; border: 1px solid #2a2a2a; }
     }
 
-    /* ---------- Panggung (dipakai halaman tamu dan pratinjau admin) ---------- */
+    /* ---------- Panggung ---------- */
     .stage { --px: .25cqw; width: 100%; height: 100%; display: flex; flex-direction: column; background: #000; color: var(--ink); position: relative; overflow: hidden; }
     
     .hd { position: relative; flex: none; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 5; padding: 0 calc(var(--px) * 24);
@@ -81,9 +81,6 @@
     .ft2 { font-weight: 300; color: var(--mute); }
     button.ft2:hover { color: #fff; }
 
-    .exit-focus-btn { position: absolute; top: calc(var(--px) * 16); right: calc(var(--px) * 16); z-index: 20; padding: calc(var(--px) * 8) calc(var(--px) * 14); border-radius: 20px; background: rgba(0,0,0,.6); color: #fff; border: 1px solid rgba(255,255,255,.2); font-size: calc(var(--px) * 11); letter-spacing: .1em; backdrop-filter: blur(4px); }
-    .exit-focus-btn:hover { background: rgba(0,0,0,.9); }
-
     @supports not (width: 1cqw) { .stage { --px: 1px; } }
     @media (prefers-reduced-motion: reduce) { .slide, .hd, .ft, .counter { transition-duration: .01s; } }
 
@@ -121,7 +118,6 @@
     .row-h output { font-variant-numeric: tabular-nums; color: var(--text); }
     input[type=range] { width: 100%; height: 22px; margin: 0; accent-color: var(--accent); }
     
-    /* Box kontrol teks */
     .txt-block { margin-bottom: 20px; padding: 16px; background: rgba(255,255,255,0.02); border: 1px solid var(--rule); border-radius: 10px; }
     .txt-title { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--text); }
     .txt-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
@@ -169,7 +165,7 @@
     /* =====================================================================
        KONFIGURASI: tempel link /exec dari Google Apps Script (Deploy > Web app)
        ===================================================================== */
-    const API_URL = "https://script.google.com/macros/s/AKfycbwDJK-FE2CgErBy22aEZaUpnDyK0uoYQwLalU9mTYlvpK15Ify35LG21XX_HDvz6L2Z/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxXuL6SSNhXFhVeRpy5kCekTuB6aaT2eHodFbNelC_3YZetw6kNsGSZJh5SdfKSVpfN/exec";
     /* ===================================================================== */
 
     const API_READY = /^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(API_URL);
@@ -186,7 +182,6 @@
       { value: 'Bodoni Moda', label: 'Bodoni Moda (Mewah Fashion)' },
     ];
 
-    /* ---------- Pengaturan bawaan & batas nilai ---------- */
     const DEFAULTS = {
       headerHeight: 25, headerBgImage: '', headerBgOpacity: 30, headerGradientTop: 80, headerGradientBottom: 80, headerBgPositionY: 50,
       headerText1: 'PORTFOLIO', headerText2: 'ADNAN VISUALS', headerText3: 'Estetika dalam Lensa',
@@ -319,9 +314,6 @@
       });
     }
 
-    /* =====================================================================
-       Tampilan publik: dipakai halaman tamu dan pratinjau admin
-       ===================================================================== */
     const px = (n) => 'calc(var(--px) * ' + n + ')';
     const pad2 = (n) => String(n).padStart(2, '0');
 
@@ -434,9 +426,6 @@
 
       return (
         <div className="stage">
-          {isFocused && (
-          )}
-
           <header className={'hd' + (isFocused ? ' focused' : '')} style={{ height: s.headerHeight + '%' }}>
             {s.headerBgImage && (
               <div className="hd-bg">
@@ -489,9 +478,6 @@
       );
     }
 
-    /* =====================================================================
-       Komponen admin
-       ===================================================================== */
     function Modal({ title, onClose, children }) {
       const ref = useRef(null);
       const closeRef = useRef(onClose);
@@ -552,10 +538,10 @@
         if (busy) return;
         const user = f.user.trim();
         if (!f.cur) return setErr('Masukkan password saat ini.');
-        if (!/^[A-Za-z0-9._-]{3,32}$/.test(user)) return setErr('Username 3 sampai 32 karakter: huruf, angka, titik, strip, atau garis bawah.');
+        if (!/^[A-Za-z0-9._-]{3,32}$/.test(user)) return setErr('Username 3 sampai 32 karakter.');
         if (f.pass && f.pass.length < 8) return setErr('Password baru minimal 8 karakter.');
         if (f.pass !== f.pass2) return setErr('Konfirmasi password baru tidak sama.');
-        if (user === currentUser && !f.pass) return setErr('Belum ada yang diubah. Ganti username atau isi password baru.');
+        if (user === currentUser && !f.pass) return setErr('Belum ada yang diubah.');
         setBusy(true); setErr('');
         try { await onSubmit({ currentPass: f.cur, user, pass: f.pass }); } catch (ex) { setErr(ex.message || 'Gagal menyimpan akun.'); setBusy(false); }
       };
@@ -573,7 +559,7 @@
             <input id="ac-pass" className="field" type={type} autoComplete="new-password" placeholder="Kosongkan jika tidak diganti" value={f.pass} onChange={set('pass')} />
             <label className="fl" htmlFor="ac-pass2">Ulangi password baru</label>
             <input id="ac-pass2" className="field" type={type} autoComplete="new-password" value={f.pass2} onChange={set('pass2')} />
-            <label className="show" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 14, color: 'var(--sub)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 14, color: 'var(--sub)' }}>
               <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Tampilkan password
             </label>
             {err && <p className="err" role="alert">{err}</p>}
@@ -639,9 +625,6 @@
       );
     }
 
-    /* =====================================================================
-       Aplikasi
-       ===================================================================== */
     class ErrorBoundary extends React.Component {
       constructor(props) { super(props); this.state = { failed: false }; }
       static getDerivedStateFromError() { return { failed: true }; }
@@ -812,7 +795,6 @@
         </>
       );
 
-      /* ----- Halaman tamu ----- */
       if (!isAdmin) {
         return (
           <div className="page">
@@ -822,7 +804,6 @@
         );
       }
 
-      /* ----- Dashboard admin ----- */
       const hasImg = !!settings.headerBgImage;
       return (
         <div className="admin">
