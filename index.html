@@ -435,7 +435,7 @@
       return (
         <div className="stage">
           {isFocused && (
-            <button type="button" className="exit-focus-btn" onClick={() => setIsFocused(false)}>
+            <button type="button" className="exit-focus-btn" style={{ opacity: 0 }} onClick={() => setIsFocused(false)}>
               TUTUP FOKUS ✕
             </button>
           )}
