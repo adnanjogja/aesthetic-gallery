@@ -9,7 +9,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,200;0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=Cinzel:wght@400..700&family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Inter:wght@300..700&family=Jost:ital,wght@0,200..700;1,200..700&family=Montserrat:ital,wght@0,300..700;1,300..700&family=Oswald:wght@300..700&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Syne:wght@400..800&display=swap" rel="stylesheet">
 
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -26,58 +26,68 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; height: 100%; }
     body { font-family: 'Jost', 'Helvetica Neue', Arial, sans-serif; background: #000; color: var(--ink); -webkit-font-smoothing: antialiased; }
-    button, input { font: inherit; color: inherit; }
+    button, input, select { font: inherit; color: inherit; }
     button { cursor: pointer; background: none; border: 0; padding: 0; }
     :focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 
     .boot { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--mute); font-weight: 300; letter-spacing: .3em; font-size: 13px; line-height: 2; }
 
-    /* ---------- Halaman tamu ---------- */
     .page { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; background: #000; }
     .frame { position: relative; background: #000; overflow: hidden; container-type: inline-size; }
-    /* Bingkai selalu portrait 9:16 di semua layar (desktop, ponsel tegak, ponsel mendatar); isinya ikut membesar/mengecil. */
     .frame-live { width: min(100vw, calc(100vh * 9 / 16)); width: min(100vw, calc(100svh * 9 / 16)); aspect-ratio: 9 / 16; }
     @media (min-width: 640px) {
       .page { padding: 24px; }
       .frame-live { width: min(calc(100vw - 48px), calc(min(900px, 100vh - 48px) * 9 / 16)); width: min(calc(100vw - 48px), calc(min(900px, 100svh - 48px) * 9 / 16)); border-radius: 28px; border: 1px solid #2a2a2a; }
     }
 
-    /* ---------- Panggung (dipakai halaman tamu dan pratinjau admin) ---------- */
     .stage { --px: .25cqw; width: 100%; height: 100%; display: flex; flex-direction: column; background: #000; color: var(--ink); position: relative; overflow: hidden; }
-    .hd { position: relative; flex: none; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 2; padding: 0 calc(var(--px) * 24); }
+    
+    .hd { position: relative; flex: none; display: flex; align-items: center; justify-content: center; text-align: center; z-index: 2; padding: 0 calc(var(--px) * 24);
+          transition: transform .6s cubic-bezier(.16, 1, .3, 1), opacity .6s cubic-bezier(.16, 1, .3, 1); will-change: transform, opacity; }
     .hd-bg { position: absolute; inset: 0; overflow: hidden; }
     .hd-bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .hd-fade { position: absolute; inset: 0; }
     .hd-text { position: relative; width: 100%; }
-    .t1 { margin: 0 0 calc(var(--px) * 10); font-weight: 300; letter-spacing: .5em; padding-left: .5em; color: var(--mute); overflow-wrap: anywhere; }
-    .t2 { margin: 0 0 calc(var(--px) * 8); font-weight: 300; letter-spacing: .28em; padding-left: .28em; line-height: 1.15; color: #fff; overflow-wrap: anywhere; }
-    .t3 { margin: 0; font-weight: 300; font-style: italic; letter-spacing: .04em; color: var(--mute); overflow-wrap: anywhere; }
+    .t1 { margin: 0 0 calc(var(--px) * 10); font-weight: 300; padding-left: .2em; color: var(--mute); overflow-wrap: anywhere; }
+    .t2 { margin: 0 0 calc(var(--px) * 8); font-weight: 300; padding-left: .1em; line-height: 1.15; color: #fff; overflow-wrap: anywhere; }
+    .t3 { margin: 0; font-weight: 300; font-style: italic; color: var(--mute); overflow-wrap: anywhere; }
 
-    .gl { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; z-index: 1; }
+    .gl { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; z-index: 1; transition: padding .5s ease; }
     .slides { position: relative; flex: 1; min-height: 0; perspective: calc(var(--px) * 1000); touch-action: pan-y; user-select: none; -webkit-user-select: none; cursor: grab; }
     .slides.dragging { cursor: grabbing; }
     .slides:focus-visible { outline-offset: -3px; }
     .slide { position: absolute; left: 50%; top: 50%; will-change: transform, opacity;
              transition: transform .8s cubic-bezier(.25, .1, .25, 1), opacity .8s cubic-bezier(.25, .1, .25, 1); }
     .slide img { position: absolute; inset: 0; margin: auto; width: auto; height: auto; max-width: 100%; max-height: 100%; display: block; pointer-events: none; }
-    .counter { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 16); padding: calc(var(--px) * 4) 0 calc(var(--px) * 12); font-size: calc(var(--px) * 12); letter-spacing: .2em; color: var(--mute); font-variant-numeric: tabular-nums; }
+    
+    .counter { flex: none; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 16); padding: calc(var(--px) * 4) 0 calc(var(--px) * 12); font-size: calc(var(--px) * 12); letter-spacing: .2em; color: var(--mute); font-variant-numeric: tabular-nums;
+               transition: opacity .5s ease, transform .5s ease; }
     .counter button { width: calc(var(--px) * 30); height: calc(var(--px) * 30); display: grid; place-items: center; border-radius: 50%; color: var(--mute); }
     .counter button:hover { color: #fff; }
     .counter svg { width: calc(var(--px) * 14); height: calc(var(--px) * 14); }
     .empty { flex: 1; display: grid; place-items: center; color: var(--mute); font-weight: 300; font-size: calc(var(--px) * 13); letter-spacing: .12em; }
 
-    .ft { flex: none; position: relative; z-index: 2; display: flex; justify-content: center; padding: calc(var(--px) * 8) calc(var(--px) * 24) calc(var(--px) * 26); }
+    .ft { flex: none; position: relative; z-index: 2; display: flex; justify-content: center; padding: calc(var(--px) * 8) calc(var(--px) * 24) calc(var(--px) * 26);
+          transition: transform .6s cubic-bezier(.16, 1, .3, 1), opacity .6s cubic-bezier(.16, 1, .3, 1); will-change: transform, opacity; }
     .ft-in { display: flex; flex-direction: column; align-items: center; gap: calc(var(--px) * 14); text-align: center; }
-    .ft1 { font-weight: 300; letter-spacing: .3em; color: #d6d6d6; text-decoration: none; }
+    .ft1 { font-weight: 300; color: #d6d6d6; text-decoration: none; }
     a.ft1 { padding-bottom: .4em; border-bottom: 1px solid #5a5a5a; }
     a.ft1:hover { color: #fff; border-color: #bdbdbd; }
-    .ft2 { font-weight: 300; letter-spacing: .22em; color: var(--mute); }
+    .ft2 { font-weight: 300; color: var(--mute); }
     button.ft2:hover { color: #fff; }
 
-    @supports not (width: 1cqw) { .stage { --px: 1px; } }
-    @media (prefers-reduced-motion: reduce) { .slide { transition-duration: .01s; } }
+    .stage.focused .hd { transform: translateY(-100%); opacity: 0; pointer-events: none; }
+    .stage.focused .ft { transform: translateY(100%); opacity: 0; pointer-events: none; }
+    .stage.focused .counter { opacity: 0; transform: translateY(12px); pointer-events: none; }
 
-    /* ---------- Modal & toast ---------- */
+    .focus-exit { position: absolute; top: calc(var(--px) * 16); right: calc(var(--px) * 16); z-index: 30; background: rgba(0, 0, 0, .55); color: #fff; border: 1px solid rgba(255, 255, 255, .2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+                  padding: calc(var(--px) * 6) calc(var(--px) * 12); border-radius: 20px; font-size: calc(var(--px) * 11); letter-spacing: .1em; opacity: 0; transform: scale(.9); transition: opacity .4s ease, transform .4s ease; pointer-events: none; }
+    .stage.focused .focus-exit { opacity: .85; transform: scale(1); pointer-events: auto; }
+    .stage.focused .focus-exit:hover { opacity: 1; background: rgba(0, 0, 0, .8); }
+
+    @supports not (width: 1cqw) { .stage { --px: 1px; } }
+    @media (prefers-reduced-motion: reduce) { .slide, .hd, .ft, .counter { transition-duration: .01s; } }
+
     .scrim { position: fixed; inset: 0; background: rgba(0, 0, 0, .72); display: grid; place-items: center; padding: 16px; z-index: 50; }
     .modal { width: 100%; max-width: 380px; background: var(--surface); color: var(--text); border-radius: 14px; padding: 28px; }
     .modal h2 { margin: 0 0 4px; font-size: 20px; font-weight: 500; }
@@ -87,7 +97,6 @@
     .toast.error { background: var(--err); }
     .toast.warn { background: var(--warn); }
 
-    /* ---------- Admin ---------- */
     .admin { display: grid; grid-template-columns: minmax(0, 1fr) minmax(420px, 600px); grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100svh; min-width: 1024px; background: var(--bg); color: var(--text); color-scheme: dark;
              --text: #ececec; --sub: #9a9a9a; --rule: #2c2c2c; --field: #3a3a3a; --bg: #0a0a0a; --ok: #3ecf8e;
              --surface: #141414; --fbg: #0a0a0a; --hover: #202020; --accent: #f2f2f2; --on-accent: #000; --accent-hover: #d4d4d4; --disabled: #2e2e2e; --disabled-fg: #777;
@@ -113,10 +122,13 @@
     .row-h { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; margin-bottom: 6px; }
     .row-h output { color: var(--sub); font-variant-numeric: tabular-nums; }
     input[type=range] { width: 100%; height: 22px; margin: 0; accent-color: var(--accent); }
-    .txt { margin-bottom: 16px; }
+    .txt { margin-bottom: 20px; }
     .txt > label { display: block; font-size: 14px; margin-bottom: 6px; }
-    .txt-in { display: grid; grid-template-columns: minmax(0, 1fr) 130px; gap: 12px; align-items: center; }
-    .size { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 6px; align-items: center; font-size: 13px; color: var(--sub); text-align: right; }
+    .txt-in { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; align-items: center; }
+    .select-font { background: var(--fbg); border: 1px solid var(--field); border-radius: 8px; height: 42px; padding: 0 10px; color: var(--text); font-size: 14px; }
+    .txt-sliders { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; background: rgba(255,255,255,.03); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,.05); }
+    .size { display: grid; grid-template-columns: 55px minmax(0, 1fr) 50px; gap: 8px; align-items: center; font-size: 13px; color: var(--sub); }
+    .size .num { text-align: right; font-variant-numeric: tabular-nums; }
     .hint { margin: 6px 0 0; font-size: 13px; color: var(--sub); line-height: 1.4; }
     .field { display: block; width: 100%; height: 42px; padding: 0 12px; border: 1px solid var(--field); border-radius: 8px; background: var(--fbg); font-size: 15px; color: var(--text); }
     .field:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
@@ -134,7 +146,9 @@
     .file input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
     .file label.btn:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
     .sub-h { margin: 22px 0 12px; font-size: 14px; font-weight: 500; }
-    .show { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--sub); }
+    .show { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; color: var(--sub); cursor: pointer; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; font-size: 14px; margin-bottom: 16px; }
+    .checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
   </style>
 </head>
 <body>
@@ -161,24 +175,34 @@
 
     const API_READY = /^https:\/\/script\.google\.com\/.+\/exec(\?.*)?$/.test(API_URL);
 
-    /* ---------- Pengaturan bawaan & batas nilai ---------- */
+    /* ---------- Opsi font & default settings ---------- */
+    const FONTS = [
+      'Jost', 'Playfair Display', 'Montserrat', 'Cinzel',
+      'Cormorant Garamond', 'Oswald', 'Inter', 'Syne', 'Bodoni Moda'
+    ];
+
     const DEFAULTS = {
       headerHeight: 25, headerBgImage: '', headerBgOpacity: 30, headerGradientTop: 80, headerGradientBottom: 80, headerBgPositionY: 50,
       headerText1: 'PORTFOLIO', headerText2: 'ADNAN VISUALS', headerText3: 'Estetika dalam Lensa',
       headerFontSize1: 12, headerFontSize2: 26, headerFontSize3: 14, headerTextPositionY: 50,
+      headerFont1: 'Jost', headerFont2: 'Jost', headerFont3: 'Jost',
+      headerSpacing1: 50, headerSpacing2: 28, headerSpacing3: 4,
       footerText1: 'SUBSCRIBE TO NEWSLETTER', footerLink: '', footerText2: '© 2026 HAK CIPTA DILINDUNGI',
       footerFontSize1: 12, footerFontSize2: 10, footerTextPositionY: 50,
-      slideDuration: 4000, imageScale: 100, imageRadius: 20,
+      footerFont1: 'Jost', footerFont2: 'Jost',
+      footerSpacing1: 30, footerSpacing2: 22,
+      slideDuration: 4000, imageScale: 100, imageRadius: 20, showCounter: 1,
     };
     const RANGES = {
       headerHeight: [15, 40], headerBgOpacity: [0, 100], headerGradientTop: [0, 100], headerGradientBottom: [0, 100], headerBgPositionY: [0, 100],
       headerFontSize1: [8, 50], headerFontSize2: [8, 50], headerFontSize3: [8, 50], headerTextPositionY: [0, 100],
+      headerSpacing1: [0, 100], headerSpacing2: [0, 100], headerSpacing3: [0, 100],
       footerFontSize1: [8, 30], footerFontSize2: [8, 30], footerTextPositionY: [0, 100],
-      slideDuration: [1000, 10000], imageScale: [50, 150], imageRadius: [0, 60],
+      footerSpacing1: [0, 100], footerSpacing2: [0, 100],
+      slideDuration: [1000, 10000], imageScale: [50, 200], imageRadius: [0, 60], showCounter: [0, 1],
     };
-    const TEXT_KEYS = ['headerBgImage', 'headerText1', 'headerText2', 'headerText3', 'footerText1', 'footerLink', 'footerText2'];
+    const TEXT_KEYS = ['headerBgImage', 'headerText1', 'headerText2', 'headerText3', 'headerFont1', 'headerFont2', 'headerFont3', 'footerText1', 'footerLink', 'footerText2', 'footerFont1', 'footerFont2'];
 
-    // Data dari database bisa kosong, berupa teks JSON, atau angka sebagai string: semuanya dirapikan di sini.
     function normalizeSettings(raw) {
       let src = raw;
       if (typeof src === 'string') { try { src = JSON.parse(src); } catch (e) { src = {}; } }
@@ -193,7 +217,6 @@
       return out;
     }
 
-    // Tautan Google Drive lama (uc?id=...) sering ditolak browser; format thumbnail lebih andal.
     function toImageUrl(u) {
       if (typeof u !== 'string') return '';
       const m = u.match(/drive\.google\.com\/(?:uc\?(?:[^#]*&)?id=|file\/d\/|open\?id=|thumbnail\?id=)([\w-]+)/);
@@ -210,7 +233,6 @@
       }).filter((x) => x && x.url);
     }
 
-    // Tombol footer hanya menerima http(s), mailto, atau tel supaya tidak bisa diisi skrip berbahaya.
     function safeLink(v) {
       const s = String(v || '').trim();
       if (!s) return '';
@@ -226,7 +248,6 @@
       del(k, session) { try { (session ? sessionStorage : localStorage).removeItem(k); } catch (e) { /* diabaikan */ } },
     };
 
-    /* ---------- Foto contoh untuk mode demo (belum ada Apps Script) ---------- */
     function demoImages() {
       const tones = [['#3a3a3a', '#8c8c8c'], ['#2b2f33', '#9aa3ab'], ['#4a4540', '#b5aca1'], ['#262626', '#6f6f6f'], ['#35393c', '#a7aeb3'], ['#41403d', '#9c9a94']];
       return tones.map((t, i) => {
@@ -235,13 +256,13 @@
       });
     }
 
-    /* ---------- Komunikasi dengan Google Apps Script ---------- */
+    /* ---------- API Communication & Error Handling ---------- */
     class ApiError extends Error {
       constructor(message, code) { super(message); this.code = code || 'ERROR'; }
     }
     async function request(url, options) {
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 30000);
+      const timer = setTimeout(() => ctrl.abort(), 35000);
       try {
         const res = await fetch(url, Object.assign({ redirect: 'follow', signal: ctrl.signal }, options));
         if (!res.ok) throw new ApiError('Server menjawab dengan kode ' + res.status + '.', 'HTTP');
@@ -258,14 +279,14 @@
     const apiLoad = () => request(API_URL + (API_URL.indexOf('?') > -1 ? '&' : '?') + 'action=public');
     const apiPost = (payload) => request(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
 
-    /* ---------- Kompres gambar header sebelum diunggah ---------- */
     function compressImage(file, maxSide, quality) {
       return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(file);
         const img = new Image();
         img.onload = () => {
           try {
-            const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+            const maxD = maxSide || 1200;
+            const scale = Math.min(1, maxD / Math.max(img.naturalWidth, img.naturalHeight));
             const w = Math.max(1, Math.round(img.naturalWidth * scale));
             const h = Math.max(1, Math.round(img.naturalHeight * scale));
             const canvas = document.createElement('canvas');
@@ -273,8 +294,8 @@
             const ctx = canvas.getContext('2d');
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h);
             ctx.drawImage(img, 0, 0, w, h);
-            let out = canvas.toDataURL('image/jpeg', quality);
-            if (out.length > 1500000) out = canvas.toDataURL('image/jpeg', 0.6);
+            let out = canvas.toDataURL('image/jpeg', quality || 0.75);
+            if (out.length > 700000) out = canvas.toDataURL('image/jpeg', 0.55);
             resolve(out);
           } catch (e) { reject(e); } finally { URL.revokeObjectURL(url); }
         };
@@ -284,12 +305,12 @@
     }
 
     /* =====================================================================
-       Tampilan publik: dipakai halaman tamu dan pratinjau admin
+       Tampilan publik: Carousel & Stage Component
        ===================================================================== */
     const px = (n) => 'calc(var(--px) * ' + n + ')';
     const pad2 = (n) => String(n).padStart(2, '0');
 
-    function Carousel({ images, slideDuration, imageScale, imageRadius }) {
+    function Carousel({ images, slideDuration, imageScale, imageRadius, showCounter, isFocused, onToggleFocus }) {
       const n = images.length;
       const [index, setIndex] = useState(0);
       const [drag, setDrag] = useState(0);
@@ -311,7 +332,8 @@
 
       const go = (d) => setIndex((i) => (i + d + n) % n);
       const unit = () => ((box.current && box.current.getBoundingClientRect().width) || 400) / 400;
-      const scale = imageScale / 100;
+      const baseScale = imageScale / 100;
+      const effectiveScale = isFocused ? baseScale * 1.35 : baseScale;
 
       const finish = (e, commit) => {
         if (startX.current === null) return;
@@ -324,7 +346,11 @@
         else if (!moved.current) {
           const el = e.target && e.target.closest ? e.target.closest('[data-rel]') : null;
           const rel = el ? Number(el.getAttribute('data-rel')) : 0;
-          if (rel !== 0) go(rel);
+          if (rel === 0) {
+            onToggleFocus();
+          } else if (rel !== 0) {
+            go(rel);
+          }
         }
       };
 
@@ -334,16 +360,23 @@
         if (rel > n / 2) rel -= n;
         if (Math.abs(rel) > 2) continue;
         const a = Math.abs(rel);
-        const s = a === 0 ? 1 : a === 1 ? 0.85 : 0.7;
+        const s = a === 0 ? (isFocused ? 1.08 : 1) : a === 1 ? 0.85 : 0.7;
         const tilt = Math.max(-1, Math.min(1, rel)) * -25;
+        
+        const widthVal = isFocused 
+          ? 'min(' + px(440) + ', ' + px(360 * effectiveScale) + ')' 
+          : 'min(' + px(352) + ', ' + px(272 * effectiveScale) + ')';
+        const heightVal = isFocused 
+          ? 'min(calc(100% - ' + px(8) + '), ' + px(480 * effectiveScale) + ')' 
+          : 'min(calc(100% - ' + px(16) + '), ' + px(340 * effectiveScale) + ')';
+
         slides.push(
           <div key={images[i].id + '-' + i} className="slide" data-rel={rel} aria-hidden={rel !== 0}
             style={{
-              transform: 'translate(-50%, -50%) translate3d(' + px(rel * 190 + drag) + ', 0, 0) scale(' + s + ') rotateY(' + tilt + 'deg)',
-              // Kotak foto = batas maksimal (lebar sampai margin teks 24, tinggi sampai batas area galeri); foto tampil utuh di dalamnya sesuai rasio aslinya.
-              width: 'min(' + px(352) + ', ' + px(272 * scale) + ')',
-              height: 'min(calc(100% - ' + px(16) + '), ' + px(340 * scale) + ')',
-              opacity: a === 0 ? 1 : a === 1 ? 0.4 : 0,
+              transform: 'translate(-50%, -50%) translate3d(' + px(rel * (isFocused ? 220 : 190) + drag) + ', 0, 0) scale(' + s + ') rotateY(' + tilt + 'deg)',
+              width: widthVal,
+              height: heightVal,
+              opacity: a === 0 ? 1 : a === 1 ? (isFocused ? 0.25 : 0.4) : 0,
               zIndex: 10 - a,
               pointerEvents: a <= 1 ? 'auto' : 'none',
               transition: dragging ? 'none' : undefined,
@@ -368,27 +401,35 @@
             onPointerLeave={(e) => finish(e, true)}>
             {slides}
           </div>
-          <div className="counter" aria-live="off">
-            {n > 1 && (
-              <button type="button" aria-label="Foto sebelumnya" onClick={() => go(-1)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
-              </button>
-            )}
-            <span>{pad2(index + 1)} / {pad2(n)}</span>
-            {n > 1 && (
-              <button type="button" aria-label="Foto berikutnya" onClick={() => go(1)}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
-              </button>
-            )}
-          </div>
+          {!!showCounter && (
+            <div className="counter" aria-live="off">
+              {n > 1 && (
+                <button type="button" aria-label="Foto sebelumnya" onClick={() => go(-1)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+                </button>
+              )}
+              <span>{pad2(index + 1)} / {pad2(n)}</span>
+              {n > 1 && (
+                <button type="button" aria-label="Foto berikutnya" onClick={() => go(1)}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5l7 7-7 7" /></svg>
+                </button>
+              )}
+            </div>
+          )}
         </>
       );
     }
 
     function Stage({ settings: s, images, onAdminTap }) {
       const link = safeLink(s.footerLink);
+      const [isFocused, setIsFocused] = useState(false);
+
       return (
-        <div className="stage">
+        <div className={'stage' + (isFocused ? ' focused' : '')}>
+          <button type="button" className="focus-exit" onClick={() => setIsFocused(false)} aria-label="Tutup mode fokus">
+            ✕ Kembalikan Tampilan
+          </button>
+          
           <header className="hd" style={{ height: s.headerHeight + '%' }}>
             {s.headerBgImage && (
               <div className="hd-bg">
@@ -397,22 +438,24 @@
               </div>
             )}
             <div className="hd-text" style={{ transform: 'translateY(' + px(s.headerTextPositionY - 50) + ')' }}>
-              {s.headerText1 && <p className="t1" style={{ fontSize: px(s.headerFontSize1) }}>{s.headerText1}</p>}
-              {s.headerText2 && <h1 className="t2" style={{ fontSize: px(s.headerFontSize2) }}>{s.headerText2}</h1>}
-              {s.headerText3 && <p className="t3" style={{ fontSize: px(s.headerFontSize3) }}>{s.headerText3}</p>}
+              {s.headerText1 && <p className="t1" style={{ fontSize: px(s.headerFontSize1), fontFamily: s.headerFont1 || 'Jost', letterSpacing: (s.headerSpacing1 / 100) + 'em' }}>{s.headerText1}</p>}
+              {s.headerText2 && <h1 className="t2" style={{ fontSize: px(s.headerFontSize2), fontFamily: s.headerFont2 || 'Jost', letterSpacing: (s.headerSpacing2 / 100) + 'em' }}>{s.headerText2}</h1>}
+              {s.headerText3 && <p className="t3" style={{ fontSize: px(s.headerFontSize3), fontFamily: s.headerFont3 || 'Jost', letterSpacing: (s.headerSpacing3 / 100) + 'em' }}>{s.headerText3}</p>}
             </div>
           </header>
+
           <main className="gl">
-            <Carousel images={images} imageScale={s.imageScale} imageRadius={s.imageRadius} slideDuration={s.slideDuration} />
+            <Carousel images={images} imageScale={s.imageScale} imageRadius={s.imageRadius} slideDuration={s.slideDuration} showCounter={s.showCounter} isFocused={isFocused} onToggleFocus={() => setIsFocused(!isFocused)} />
           </main>
+
           <footer className="ft">
             <div className="ft-in" style={{ transform: 'translateY(' + px(s.footerTextPositionY - 50) + ')' }}>
               {s.footerText1 && (link
-                ? <a className="ft1" href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: px(s.footerFontSize1) }}>{s.footerText1}</a>
-                : <span className="ft1" style={{ fontSize: px(s.footerFontSize1) }}>{s.footerText1}</span>)}
+                ? <a className="ft1" href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: px(s.footerFontSize1), fontFamily: s.footerFont1 || 'Jost', letterSpacing: (s.footerSpacing1 / 100) + 'em' }}>{s.footerText1}</a>
+                : <span className="ft1" style={{ fontSize: px(s.footerFontSize1), fontFamily: s.footerFont1 || 'Jost', letterSpacing: (s.footerSpacing1 / 100) + 'em' }}>{s.footerText1}</span>)}
               {s.footerText2 && (onAdminTap
-                ? <button type="button" className="ft2" onClick={onAdminTap} style={{ fontSize: px(s.footerFontSize2) }}>{s.footerText2}</button>
-                : <span className="ft2" style={{ fontSize: px(s.footerFontSize2) }}>{s.footerText2}</span>)}
+                ? <button type="button" className="ft2" onClick={onAdminTap} style={{ fontSize: px(s.footerFontSize2), fontFamily: s.footerFont2 || 'Jost', letterSpacing: (s.footerSpacing2 / 100) + 'em' }}>{s.footerText2}</button>
+                : <span className="ft2" style={{ fontSize: px(s.footerFontSize2), fontFamily: s.footerFont2 || 'Jost', letterSpacing: (s.footerSpacing2 / 100) + 'em' }}>{s.footerText2}</span>)}
             </div>
           </footer>
         </div>
@@ -420,7 +463,7 @@
     }
 
     /* =====================================================================
-       Komponen admin
+       Komponen admin & Modal Forms
        ===================================================================== */
     function Modal({ title, onClose, children }) {
       const ref = useRef(null);
@@ -524,28 +567,46 @@
       );
     }
 
-    function TextRow({ label, value, onText, size, onSize, sizeMin, sizeMax, placeholder, hint }) {
+    function TextRow({ label, value, onText, size, onSize, sizeMin, sizeMax, font, onFont, spacing, onSpacing, placeholder, hint }) {
       const id = useId();
       const sid = useId();
+      const spid = useId();
       return (
         <div className="txt">
           <label htmlFor={id}>{label}</label>
-          <div className="txt-in" style={onSize ? undefined : { gridTemplateColumns: 'minmax(0, 1fr)' }}>
+          <div className="txt-in" style={{ gridTemplateColumns: font ? 'minmax(0, 1fr) 140px' : 'minmax(0, 1fr)' }}>
             <input id={id} className="field" type="text" value={value} placeholder={placeholder} onChange={(e) => onText(e.target.value)} />
-            {onSize && (
-              <div className="size">
-                <input id={sid} type="range" aria-label={label + ' (ukuran huruf)'} min={sizeMin} max={sizeMax} value={size} onChange={(e) => onSize(Number(e.target.value))} />
-                <span>{size}px</span>
-              </div>
+            {font && (
+              <select className="select-font" value={font} onChange={(e) => onFont(e.target.value)} title="Pilih jenis font">
+                {FONTS.map((f) => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
+              </select>
             )}
           </div>
+          {(onSize || onSpacing) && (
+            <div className="txt-sliders">
+              {onSize && (
+                <div className="size">
+                  <span>Ukuran:</span>
+                  <input id={sid} type="range" aria-label={label + ' (ukuran)'} min={sizeMin || 8} max={sizeMax || 50} value={size} onChange={(e) => onSize(Number(e.target.value))} />
+                  <span className="num">{size}px</span>
+                </div>
+              )}
+              {onSpacing && (
+                <div className="size">
+                  <span>Jarak:</span>
+                  <input id={spid} type="range" aria-label={label + ' (jarak)'} min={0} max={100} value={spacing} onChange={(e) => onSpacing(Number(e.target.value))} />
+                  <span className="num">{(spacing / 100).toFixed(2)}em</span>
+                </div>
+              )}
+            </div>
+          )}
           {hint && <p className="hint">{hint}</p>}
         </div>
       );
     }
 
     /* =====================================================================
-       Aplikasi
+       Main App Logic
        ===================================================================== */
     class ErrorBoundary extends React.Component {
       constructor(props) { super(props); this.state = { failed: false }; }
@@ -590,7 +651,6 @@
 
       useEffect(() => { window.__avMounted = true; }, []);
 
-      // Dasbor admin selalu memakai tata letak desktop (lebar 1280) walau dibuka di ponsel; halaman tamu tetap mengikuti lebar perangkat.
       useEffect(() => {
         const m = document.querySelector('meta[name="viewport"]');
         if (m) m.setAttribute('content', isAdmin ? 'width=1280, viewport-fit=cover' : 'width=device-width, initial-scale=1.0, viewport-fit=cover');
@@ -603,7 +663,6 @@
         return () => clearTimeout(t);
       }, [toast]);
 
-      // Ambil data publik (pengaturan + foto). Akun admin tidak pernah dikirim ke browser.
       useEffect(() => {
         if (!API_READY) return undefined;
         let dead = false;
@@ -623,7 +682,6 @@
         return () => { dead = true; };
       }, []);
 
-      // Buka form masuk lewat alamat #admin
       useEffect(() => {
         const check = () => { if (window.location.hash === '#admin') setShowLogin(true); };
         check();
@@ -674,11 +732,19 @@
         try {
           const next = Object.assign({}, settings);
           if (next.headerBgImage.indexOf('data:') === 0) {
-            const up = await authPost({ action: 'uploadHeader', data: next.headerBgImage });
-            next.headerBgImage = up.url;
+            try {
+              const up = await authPost({ action: 'uploadHeader', data: next.headerBgImage });
+              if (up && up.url) {
+                next.headerBgImage = up.url;
+              } else {
+                throw new Error('Gagal mendapatkan URL gambar.');
+              }
+            } catch (imgErr) {
+              throw new Error('Gagal mengunggah gambar header ke server: ' + (imgErr.message || 'Ukuran terlalu besar atau koneksi terputus.'));
+            }
           }
           const r = await authPost({ action: 'saveSettings', settings: next });
-          const stored = normalizeSettings(r.settings); // data yang benar-benar tersimpan di database
+          const stored = normalizeSettings(r.settings);
           setSettings(stored); setSavedJson(JSON.stringify(stored));
           store.set('av_cache_v2', JSON.stringify({ settings: stored, images: images }));
           notify('Pengaturan tersimpan.');
@@ -705,7 +771,7 @@
         if (!/^image\//.test(file.type)) { notify('File harus berupa gambar.', 'error'); return; }
         if (file.size > 15 * 1024 * 1024) { notify('Ukuran gambar maksimal 15 MB.', 'error'); return; }
         try {
-          const data = await compressImage(file, 1600, 0.82);
+          const data = await compressImage(file, 1200, 0.75);
           set('headerBgImage', data);
           notify(API_READY ? 'Gambar dipilih. Klik Simpan perubahan untuk mengunggah.' : 'Gambar dipilih (mode demo, tidak akan tersimpan).');
         } catch (err) { notify('Gambar tidak bisa dibaca. Coba file lain.', 'error'); }
@@ -755,6 +821,7 @@
             <div className="frame frame-prev"><Stage settings={settings} images={images} /></div>
           </div>
 
+          {}
           <div className="panel">
             {!API_READY && <p className="note">Mode demo: Apps Script belum terhubung, jadi perubahan tidak tersimpan. Isi <b>API_URL</b> di bagian atas kode dengan link /exec dari Apps Script.</p>}
             {API_READY && offline && <p className="note">Tidak bisa terhubung ke database. Perubahan baru bisa disimpan setelah koneksi kembali.</p>}
@@ -780,28 +847,55 @@
                 </>
               )}
 
-              <h3 className="sub-h">Teks</h3>
+              <h3 className="sub-h">Teks & Tipografi</h3>
               <Range label="Posisi vertikal teks" value={settings.headerTextPositionY} min={0} max={100} onChange={(v) => set('headerTextPositionY', v)} fmt={(v) => (v === 50 ? 'tengah' : v < 50 ? 'naik ' + (50 - v) : 'turun ' + (v - 50))} />
-              <TextRow label="Teks kecil di atas" value={settings.headerText1} onText={(v) => set('headerText1', v)} size={settings.headerFontSize1} onSize={(v) => set('headerFontSize1', v)} sizeMin={8} sizeMax={50} />
-              <TextRow label="Nama" value={settings.headerText2} onText={(v) => set('headerText2', v)} size={settings.headerFontSize2} onSize={(v) => set('headerFontSize2', v)} sizeMin={8} sizeMax={50} />
-              <TextRow label="Slogan" value={settings.headerText3} onText={(v) => set('headerText3', v)} size={settings.headerFontSize3} onSize={(v) => set('headerFontSize3', v)} sizeMin={8} sizeMax={50} />
+              
+              <TextRow label="Teks kecil di atas" value={settings.headerText1} onText={(v) => set('headerText1', v)}
+                size={settings.headerFontSize1} onSize={(v) => set('headerFontSize1', v)} sizeMin={8} sizeMax={50}
+                font={settings.headerFont1} onFont={(v) => set('headerFont1', v)}
+                spacing={settings.headerSpacing1} onSpacing={(v) => set('headerSpacing1', v)} />
+              
+              <TextRow label="Nama" value={settings.headerText2} onText={(v) => set('headerText2', v)}
+                size={settings.headerFontSize2} onSize={(v) => set('headerFontSize2', v)} sizeMin={8} sizeMax={50}
+                font={settings.headerFont2} onFont={(v) => set('headerFont2', v)}
+                spacing={settings.headerSpacing2} onSpacing={(v) => set('headerSpacing2', v)} />
+              
+              <TextRow label="Slogan" value={settings.headerText3} onText={(v) => set('headerText3', v)}
+                size={settings.headerFontSize3} onSize={(v) => set('headerFontSize3', v)} sizeMin={8} sizeMax={50}
+                font={settings.headerFont3} onFont={(v) => set('headerFont3', v)}
+                spacing={settings.headerSpacing3} onSpacing={(v) => set('headerSpacing3', v)} />
             </section>
 
             <section className="sec">
-              <h2>Galeri</h2>
+              <h2>Galeri & Tampilan</h2>
               <Range label="Lama tiap foto" value={settings.slideDuration} min={1000} max={10000} step={500} onChange={(v) => set('slideDuration', v)} fmt={(v) => v / 1000 + ' detik'} />
-              <Range label="Skala foto" value={settings.imageScale} min={50} max={150} unit="%" onChange={(v) => set('imageScale', v)} />
+              <Range label="Skala foto" value={settings.imageScale} min={50} max={200} unit="%" onChange={(v) => set('imageScale', v)} />
               <Range label="Sudut foto (rounded)" value={settings.imageRadius} min={0} max={60} unit="px" onChange={(v) => set('imageRadius', v)} />
+              
+              <label className="checkbox-row">
+                <input type="checkbox" checked={!!settings.showCounter} onChange={(e) => set('showCounter', e.target.checked ? 1 : 0)} />
+                Tampilkan counter foto (01 / 06) di bawah galeri
+              </label>
+
               <p className="hint">{images.length} foto{API_READY ? ' dibaca dari folder Google Drive.' : ' contoh (mode demo).'}</p>
             </section>
 
             <section className="sec">
-              <h2>Footer</h2>
+              <h2>Footer & Tipografi</h2>
               <Range label="Posisi vertikal teks" value={settings.footerTextPositionY} min={0} max={100} onChange={(v) => set('footerTextPositionY', v)} fmt={(v) => (v === 50 ? 'tengah' : v < 50 ? 'naik ' + (50 - v) : 'turun ' + (v - 50))} />
-              <TextRow label="Teks tombol" value={settings.footerText1} onText={(v) => set('footerText1', v)} size={settings.footerFontSize1} onSize={(v) => set('footerFontSize1', v)} sizeMin={8} sizeMax={30} />
+              
+              <TextRow label="Teks tombol" value={settings.footerText1} onText={(v) => set('footerText1', v)}
+                size={settings.footerFontSize1} onSize={(v) => set('footerFontSize1', v)} sizeMin={8} sizeMax={30}
+                font={settings.footerFont1} onFont={(v) => set('footerFont1', v)}
+                spacing={settings.footerSpacing1} onSpacing={(v) => set('footerSpacing1', v)} />
+              
               <TextRow label="Tautan tombol" value={settings.footerLink} onText={(v) => set('footerLink', v)} placeholder="instagram.com/akun atau nama@email.com"
                 hint={settings.footerLink && !safeLink(settings.footerLink) ? 'Tautan ini tidak dikenali, tombol tidak akan bisa diklik.' : 'Kosongkan jika tombol hanya berupa teks.'} />
-              <TextRow label="Teks hak cipta" value={settings.footerText2} onText={(v) => set('footerText2', v)} size={settings.footerFontSize2} onSize={(v) => set('footerFontSize2', v)} sizeMin={8} sizeMax={30}
+              
+              <TextRow label="Teks hak cipta" value={settings.footerText2} onText={(v) => set('footerText2', v)}
+                size={settings.footerFontSize2} onSize={(v) => set('footerFontSize2', v)} sizeMin={8} sizeMax={30}
+                font={settings.footerFont2} onFont={(v) => set('footerFont2', v)}
+                spacing={settings.footerSpacing2} onSpacing={(v) => set('footerSpacing2', v)}
                 hint="Mengetuk teks ini di halaman publik membuka form masuk admin. Alamat /#admin juga bisa dipakai." />
             </section>
           </div>
